@@ -2,11 +2,14 @@
 <html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Wellness Journal | יומן רווחה</title>
 <meta name="theme-color" content="#1a1a2e"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Wellness"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<link rel="apple-touch-startup-image" href="icon-512.png"/>
 <link rel="manifest" href="manifest.json"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -35,27 +38,33 @@
   --font-display: 'DM Serif Display', serif;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 body {
   background: var(--indigo);
   color: var(--text);
   font-family: var(--font-en);
+  min-height: 100vh; /* iOS fallback */
   min-height: 100dvh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
 }
 
 body.rtl { font-family: var(--font-he); direction: rtl; }
 
 /* ── SETUP SCREEN ── */
 #setup-screen {
+  min-height: 100vh;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  padding-top: calc(2rem + env(safe-area-inset-top));
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom));
   gap: 2rem;
   text-align: center;
 }
@@ -96,11 +105,13 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
   border-radius: var(--radius-sm);
   color: var(--text);
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: 1rem; /* ≥16px prevents iOS auto-zoom */
   padding: 0.75rem 1rem;
   width: 100%;
   outline: none;
   transition: border-color 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
 }
 .setup-card input:focus { border-color: var(--lavender); }
 .setup-card input::placeholder { color: var(--text-dim); }
@@ -135,22 +146,25 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
   color: var(--indigo);
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
   padding: 0.85rem 1.5rem;
   width: 100%;
   transition: opacity 0.2s, transform 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: manipulation;
 }
 .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:active { transform: translateY(0); opacity: 0.85; }
 .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
 /* ── APP SHELL ── */
-#app { display: none; flex-direction: column; min-height: 100dvh; }
+#app { display: none; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
 #app.visible { display: flex; }
 
 .app-header {
-  padding: 1rem 1.25rem 0.75rem;
+  padding: calc(env(safe-area-inset-top) + 0.75rem) 1.25rem 0.75rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -158,6 +172,7 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
   position: sticky;
   top: 0;
   background: rgba(26,26,46,0.92);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   z-index: 50;
 }
@@ -180,20 +195,25 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
   display: flex; align-items: center; justify-content: center;
   font-size: 1rem;
   transition: all 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: manipulation;
 }
 .icon-btn:hover { background: var(--card-hover); color: var(--text); }
+.icon-btn:active { opacity: 0.7; }
 
-.app-content { flex: 1; overflow-y: auto; padding: 1.25rem; }
+.app-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 1.25rem; }
 
 /* ── TABS ── */
 .tab-bar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
   background: rgba(26,26,46,0.96);
+  -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   border-top: 1px solid var(--border);
   display: flex;
-  padding: 0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom));
+  padding: 0.5rem env(safe-area-inset-right) calc(0.5rem + env(safe-area-inset-bottom)) env(safe-area-inset-left);
   z-index: 50;
 }
 .tab-btn {
@@ -291,11 +311,14 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
   border: none;
   color: var(--text);
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 1rem; /* ≥16px prevents iOS auto-zoom */
   line-height: 1.7;
   min-height: 160px;
   outline: none;
   resize: none;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-touch-callout: none;
 }
 .rtl .write-area textarea { font-family: var(--font-he); text-align: right; }
 .write-area textarea::placeholder { color: var(--text-dim); }
@@ -316,8 +339,12 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
   justify-content: center;
   gap: 0.4rem;
   transition: all 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: manipulation;
 }
 .btn-secondary:hover { background: var(--card-hover); }
+.btn-secondary:active { opacity: 0.75; }
 
 /* AI Panel */
 .ai-panel {
@@ -458,12 +485,14 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.7);
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   z-index: 100;
   display: none;
   align-items: flex-end;
   justify-content: center;
   padding: 1rem;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
 }
 .modal-overlay.open { display: flex; }
 .modal {
@@ -471,10 +500,13 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
   border: 1px solid var(--border);
   border-radius: var(--radius) var(--radius) 0 0;
   padding: 1.5rem;
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
   width: 100%;
   max-width: 500px;
   max-height: 80dvh;
+  max-height: 80vh;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   animation: slideUp 0.3s ease;
 }
 @keyframes slideUp {
@@ -583,7 +615,7 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
       <div class="settings-panel" id="settings-panel">
         <div class="settings-row">
           <span class="settings-label" id="lbl-apikey">Gemini API Key</span>
-          <input type="password" id="settings-api-key" placeholder="AIza..." style="background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:0.9rem;padding:0.6rem 0.8rem;width:100%;outline:none;"/>
+          <input type="password" id="settings-api-key" placeholder="AIza..." style="background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:1rem;padding:0.6rem 0.8rem;width:100%;outline:none;-webkit-appearance:none;appearance:none;"/>
         </div>
         <div class="settings-row">
           <span class="settings-label" id="lbl-lang">Language / שפה</span>
