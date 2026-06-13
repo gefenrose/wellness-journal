@@ -272,30 +272,103 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
   50% { transform: scale(1.07); }
 }
 
-.mood-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0.5rem;
+/* ── MOOD SLIDER ── */
+.mood-slider-wrap {
+  margin-bottom: 1.5rem;
+  padding: 0 0.25rem;
 }
 
-.mood-chip {
+.mood-slider-labels {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 0.5rem 0.25rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--card);
-  cursor: pointer;
-  font-size: 1.3rem;
-  transition: all 0.2s;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
 }
-.mood-chip .mood-label { font-size: 0.6rem; color: var(--text-dim); }
-.mood-chip.selected {
-  border-color: var(--orb-color, var(--lavender));
-  background: rgba(184,169,212,0.12);
-  box-shadow: 0 0 12px var(--orb-glow, rgba(184,169,212,0.2));
+.mood-slider-labels span {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 0.03em;
+}
+
+.mood-slider-track {
+  position: relative;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+/* Gradient track background */
+.mood-slider-track::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right,
+    #6b3a4a, #7a4a5e, #7a6070, #6a7a9e, #6a8aae,
+    #7a8aaa, #8a8ab0, #8a9ab8, #7a9eb8, #7aaeb0,
+    #7ab8a0, #8fb88a, #b8b46a, #d4a0c8, #e8c4d0
+  );
+}
+
+input[type=range].mood-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: transparent;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+input[type=range].mood-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--moon);
+  border: 3px solid var(--thumb-color, var(--lavender));
+  box-shadow: 0 0 12px var(--thumb-glow, rgba(184,169,212,0.5));
+  transition: border-color 0.3s, box-shadow 0.3s;
+  cursor: grab;
+}
+input[type=range].mood-range::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.15); }
+
+input[type=range].mood-range::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--moon);
+  border: 3px solid var(--thumb-color, var(--lavender));
+  box-shadow: 0 0 12px var(--thumb-glow, rgba(184,169,212,0.5));
+  transition: border-color 0.3s, box-shadow 0.3s;
+  cursor: grab;
+}
+
+input[type=range].mood-range:focus { outline: none; }
+
+.mood-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  transition: border-color 0.3s;
+}
+.mood-display .mood-emoji { font-size: 1.4rem; line-height: 1; }
+.mood-display .mood-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--moon);
+  min-width: 80px;
+  text-align: center;
+  transition: color 0.3s;
 }
 
 .write-area {
@@ -634,7 +707,19 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
 
       <div class="mood-section">
         <div class="section-label" id="lbl-mood">How are you feeling?</div>
-        <div class="mood-grid" id="mood-grid"></div>
+        <div class="mood-slider-wrap">
+          <div class="mood-slider-labels">
+            <span>😣 Suffering</span>
+            <span>😇 Blissful</span>
+          </div>
+          <div class="mood-slider-track">
+            <input type="range" class="mood-range" id="mood-slider" min="0" max="14" value="7" oninput="onSliderMove(this.value)" onchange="onSliderCommit(this.value)"/>
+          </div>
+          <div class="mood-display" id="mood-display">
+            <span class="mood-emoji" id="mood-emoji">😐</span>
+            <span class="mood-name" id="mood-name">Neutral</span>
+          </div>
+        </div>
       </div>
 
       <!-- AI Prompt -->
@@ -746,16 +831,21 @@ try {
 <script>
 // ── STATE ──
 const MOODS = [
-  { emoji:"😊", label:"Happy", labelHe:"שמח", color:"#8fb3a8", glow:"rgba(143,179,168,0.4)" },
-  { emoji:"😌", label:"Calm", labelHe:"רגוע", color:"#b8a9d4", glow:"rgba(184,169,212,0.4)" },
-  { emoji:"😔", label:"Sad", labelHe:"עצוב", color:"#7a99b8", glow:"rgba(122,153,184,0.4)" },
-  { emoji:"😤", label:"Anxious", labelHe:"חרד", color:"#e8b4b8", glow:"rgba(232,180,184,0.4)" },
-  { emoji:"😴", label:"Tired", labelHe:"עייף", color:"#9e8fad", glow:"rgba(158,143,173,0.4)" },
-  { emoji:"😠", label:"Angry", labelHe:"כועס", color:"#d4896a", glow:"rgba(212,137,106,0.4)" },
-  { emoji:"🤩", label:"Excited", labelHe:"נרגש", color:"#d4c46a", glow:"rgba(212,196,106,0.4)" },
-  { emoji:"😶", label:"Numb", labelHe:"קהה", color:"#6a8ab8", glow:"rgba(106,138,184,0.3)" },
-  { emoji:"🥰", label:"Grateful", labelHe:"אסיר תודה", color:"#d4a0c8", glow:"rgba(212,160,200,0.4)" },
-  { emoji:"😕", label:"Confused", labelHe:"מבולבל", color:"#b8b46a", glow:"rgba(184,180,106,0.3)" },
+  { emoji:"😣", label:"Suffering",   labelHe:"סובל",       color:"#6b3a4a", glow:"rgba(107,58,74,0.5)" },
+  { emoji:"😢", label:"Miserable",   labelHe:"אומלל",      color:"#7a4a5e", glow:"rgba(122,74,94,0.45)" },
+  { emoji:"😞", label:"Very Sad",    labelHe:"עצוב מאוד",  color:"#7a6070", glow:"rgba(122,96,112,0.45)" },
+  { emoji:"😔", label:"Sad",         labelHe:"עצוב",       color:"#6a7a9e", glow:"rgba(106,122,158,0.45)" },
+  { emoji:"😕", label:"Low",         labelHe:"נמוך",       color:"#6a8aae", glow:"rgba(106,138,174,0.4)" },
+  { emoji:"😶", label:"Numb",        labelHe:"קהה",        color:"#7a8aaa", glow:"rgba(122,138,170,0.4)" },
+  { emoji:"😐", label:"Neutral",     labelHe:"ניטרלי",     color:"#8a8ab0", glow:"rgba(138,138,176,0.4)" },
+  { emoji:"🙂", label:"Okay",        labelHe:"בסדר",       color:"#8a9ab8", glow:"rgba(138,154,184,0.4)" },
+  { emoji:"😌", label:"Calm",        labelHe:"רגוע",       color:"#7a9eb8", glow:"rgba(122,158,184,0.4)" },
+  { emoji:"😊", label:"Good",        labelHe:"טוב",        color:"#7aaeb0", glow:"rgba(122,174,176,0.4)" },
+  { emoji:"😄", label:"Happy",       labelHe:"שמח",        color:"#7ab8a0", glow:"rgba(122,184,160,0.45)" },
+  { emoji:"😁", label:"Very Happy",  labelHe:"מאוד שמח",   color:"#8fb88a", glow:"rgba(143,184,138,0.45)" },
+  { emoji:"🤩", label:"Excited",     labelHe:"נרגש",       color:"#b8b46a", glow:"rgba(184,180,106,0.45)" },
+  { emoji:"🥰", label:"Joyful",      labelHe:"עליז",       color:"#d4a0c8", glow:"rgba(212,160,200,0.45)" },
+  { emoji:"😇", label:"Blissful",    labelHe:"אושר מלא",   color:"#e8c4d0", glow:"rgba(232,196,208,0.5)" },
 ];
 
 let state = {
@@ -883,28 +973,57 @@ function applyLang() {
   document.getElementById('tabl-history').textContent = t('tabHistory');
   document.getElementById('tabl-insights').textContent = t('tabInsights');
   document.getElementById('entry-text').placeholder = t('placeholder');
+  updateSliderLabels && updateSliderLabels();
 }
 
-// ── MOOD ──
+// ── MOOD SLIDER ──
 function buildMoodGrid() {
-  const grid = document.getElementById('mood-grid');
-  grid.innerHTML = MOODS.map((m,i) => `
-    <div class="mood-chip" data-i="${i}" onclick="selectMood(${i})">
-      <span>${m.emoji}</span>
-      <span class="mood-label">${state.lang==='he'?m.labelHe:m.label}</span>
-    </div>
-  `).join('');
+  // Update labels for current language
+  updateSliderLabels();
+  // Init at neutral (index 7)
+  onSliderMove(7);
+}
+
+function updateSliderLabels() {
+  const isHe = state.lang === 'he';
+  const labels = document.querySelectorAll('.mood-slider-labels span');
+  if (labels.length === 2) {
+    labels[0].textContent = `😣 ${isHe ? 'סובל' : 'Suffering'}`;
+    labels[1].textContent = `${isHe ? 'אושר מלא' : 'Blissful'} 😇`;
+  }
+}
+
+function onSliderMove(val) {
+  const i = parseInt(val);
+  const m = MOODS[i];
+  // Update display pill
+  document.getElementById('mood-emoji').textContent = m.emoji;
+  const nameEl = document.getElementById('mood-name');
+  nameEl.textContent = state.lang === 'he' ? m.labelHe : m.label;
+  nameEl.style.color = m.color;
+  // Update display border
+  const display = document.getElementById('mood-display');
+  display.style.borderColor = m.color + '88';
+  // Update orb
+  const orb = document.getElementById('mood-orb');
+  orb.style.background = `radial-gradient(circle at 35% 35%, ${m.color}, #2f2f5a)`;
+  orb.style.boxShadow = `0 0 40px ${m.glow}`;
+  // Update thumb color via CSS var on the slider
+  const slider = document.getElementById('mood-slider');
+  slider.style.setProperty('--thumb-color', m.color);
+  slider.style.setProperty('--thumb-glow', m.glow);
+  // Commit immediately (every move counts)
+  state.selectedMood = i;
+}
+
+function onSliderCommit(val) {
+  state.selectedMood = parseInt(val);
 }
 
 function selectMood(i) {
-  state.selectedMood = i;
-  const m = MOODS[i];
-  document.querySelectorAll('.mood-chip').forEach((c,j) => c.classList.toggle('selected', j===i));
-  const orb = document.getElementById('mood-orb');
-  orb.style.setProperty('--orb-color', m.color);
-  orb.style.setProperty('--orb-glow', m.glow);
-  orb.style.background = `radial-gradient(circle at 35% 35%, ${m.color}, #2f2f5a)`;
-  orb.style.boxShadow = `0 0 40px ${m.glow}`;
+  // kept for compatibility — set slider position
+  document.getElementById('mood-slider').value = i;
+  onSliderMove(i);
 }
 
 // ── GEMINI API ──
@@ -1236,6 +1355,8 @@ function loadFromFirebase() {
 }
 
 // ── INIT ──
+window.onSliderMove = onSliderMove;
+window.onSliderCommit = onSliderCommit;
 window.setLang = setLang;
 window.completeSetup = completeSetup;
 window.selectMood = selectMood;
