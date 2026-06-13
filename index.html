@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Wellness Journal | יומן רווחה</title>
+<meta name="theme-color" content="#1a1a2e"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&family=Heebo:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+<style>
+:root {
+  --indigo: #1a1a2e;
+  --indigo-mid: #252545;
+  --indigo-light: #2f2f5a;
+  --lavender: #b8a9d4;
+  --lavender-dim: #7a6e99;
+  --blush: #e8b4b8;
+  --sage: #8fb3a8;
+  --moon: #f0edf7;
+  --moon-dim: #c5bfd8;
+  --text: #f0edf7;
+  --text-dim: #9b94b3;
+  --card: rgba(255,255,255,0.06);
+  --card-hover: rgba(255,255,255,0.1);
+  --border: rgba(255,255,255,0.1);
+  --radius: 18px;
+  --radius-sm: 10px;
+  --font-en: 'Inter', sans-serif;
+  --font-he: 'Heebo', sans-serif;
+  --font-display: 'DM Serif Display', serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--indigo);
+  color: var(--text);
+  font-family: var(--font-en);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.rtl { font-family: var(--font-he); direction: rtl; }
+
+/* ── SETUP SCREEN ── */
+#setup-screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 2rem;
+  text-align: center;
+}
+
+.setup-orb {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--lavender), var(--indigo-light));
+  box-shadow: 0 0 40px rgba(184,169,212,0.4);
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.setup-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  line-height: 1.2;
+  color: var(--moon);
+}
+.setup-title span { color: var(--lavender); font-style: italic; }
+.setup-sub { color: var(--text-dim); font-size: 0.9rem; line-height: 1.6; max-width: 320px; }
+
+.setup-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.setup-card label { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+.setup-card input {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.setup-card input:focus { border-color: var(--lavender); }
+.setup-card input::placeholder { color: var(--text-dim); }
+
+.lang-toggle {
+  display: flex;
+  gap: 0.5rem;
+}
+.lang-btn {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.lang-btn.active {
+  background: var(--lavender);
+  border-color: var(--lavender);
+  color: var(--indigo);
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--lavender), var(--blush));
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--indigo);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.85rem 1.5rem;
+  width: 100%;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* ── APP SHELL ── */
+#app { display: none; flex-direction: column; min-height: 100dvh; }
+#app.visible { display: flex; }
+
+.app-header {
+  padding: 1rem 1.25rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: rgba(26,26,46,0.92);
+  backdrop-filter: blur(12px);
+  z-index: 50;
+}
+
+.app-logo {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--moon);
+}
+.app-logo span { color: var(--lavender); font-style: italic; }
+
+.header-actions { display: flex; gap: 0.5rem; align-items: center; }
+.icon-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+.icon-btn:hover { background: var(--card-hover); color: var(--text); }
+
+.app-content { flex: 1; overflow-y: auto; padding: 1.25rem; }
+
+/* ── TABS ── */
+.tab-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(26,26,46,0.96);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding: 0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom));
+  z-index: 50;
+}
+.tab-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 0.4rem;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.tab-btn .tab-icon { font-size: 1.3rem; }
+.tab-btn.active { color: var(--lavender); }
+
+.tab-content { display: none; padding-bottom: 5rem; }
+.tab-content.active { display: block; }
+
+/* ── WRITE TAB ── */
+.mood-section { margin-bottom: 1.5rem; }
+.section-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+
+.mood-orb-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.mood-orb {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--orb-color, var(--lavender)), var(--indigo-light));
+  box-shadow: 0 0 40px var(--orb-glow, rgba(184,169,212,0.35));
+  animation: breathe 4s ease-in-out infinite;
+  transition: background 0.6s, box-shadow 0.6s;
+  cursor: default;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.07); }
+}
+
+.mood-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+}
+
+.mood-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0.5rem 0.25rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  font-size: 1.3rem;
+  transition: all 0.2s;
+}
+.mood-chip .mood-label { font-size: 0.6rem; color: var(--text-dim); }
+.mood-chip.selected {
+  border-color: var(--orb-color, var(--lavender));
+  background: rgba(184,169,212,0.12);
+  box-shadow: 0 0 12px var(--orb-glow, rgba(184,169,212,0.2));
+}
+
+.write-area {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.write-area textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.7;
+  min-height: 160px;
+  outline: none;
+  resize: none;
+}
+.rtl .write-area textarea { font-family: var(--font-he); text-align: right; }
+.write-area textarea::placeholder { color: var(--text-dim); }
+
+.write-actions { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+.btn-secondary {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.2s;
+}
+.btn-secondary:hover { background: var(--card-hover); }
+
+/* AI Panel */
+.ai-panel {
+  background: linear-gradient(135deg, rgba(184,169,212,0.08), rgba(232,180,184,0.06));
+  border: 1px solid rgba(184,169,212,0.2);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  display: none;
+}
+.ai-panel.visible { display: block; }
+.ai-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--lavender);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.ai-panel-body {
+  color: var(--moon-dim);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+.ai-panel-body img {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  margin-top: 0.75rem;
+}
+.ai-loading {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+.dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--lavender);
+  animation: dotpulse 1.2s ease-in-out infinite;
+}
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotpulse {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+
+/* ── HISTORY TAB ── */
+.entry-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.entry-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.entry-card:hover { background: var(--card-hover); }
+.entry-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.entry-mood-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.entry-date { font-size: 0.75rem; color: var(--text-dim); }
+.entry-preview {
+  font-size: 0.9rem;
+  color: var(--moon-dim);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.rtl .entry-preview { text-align: right; font-family: var(--font-he); }
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-dim);
+}
+.empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.empty-state p { font-size: 0.9rem; line-height: 1.6; }
+
+/* ── INSIGHTS TAB ── */
+.insights-grid { display: flex; flex-direction: column; gap: 1rem; }
+
+.insight-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+.insight-card h3 {
+  font-size: 0.75rem;
+  color: var(--lavender);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+.insight-card p { font-size: 0.9rem; color: var(--moon-dim); line-height: 1.6; }
+
+.mood-bar-wrap { display: flex; flex-direction: column; gap: 0.5rem; }
+.mood-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+.mood-bar-row .emoji { width: 24px; text-align: center; }
+.mood-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.mood-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--lavender), var(--blush));
+  transition: width 0.8s ease;
+}
+.mood-bar-count { font-size: 0.75rem; color: var(--text-dim); min-width: 20px; text-align: right; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--indigo-mid);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 500px;
+  max-height: 80dvh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+.modal-header h2 { font-family: var(--font-display); font-size: 1.3rem; color: var(--moon); }
+
+.modal-body { font-size: 0.95rem; color: var(--moon-dim); line-height: 1.7; }
+.modal-body img { width: 100%; border-radius: var(--radius-sm); margin-top: 0.75rem; }
+.rtl .modal-body { font-family: var(--font-he); text-align: right; }
+
+.modal-meta { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 5.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--indigo-light);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.85rem;
+  color: var(--text);
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── SETTINGS PANEL ── */
+.settings-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  display: none;
+}
+.settings-panel.open { display: block; }
+.settings-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.settings-row:last-child { margin-bottom: 0; }
+.settings-label { font-size: 0.8rem; color: var(--text-dim); }
+
+@media (prefers-reduced-motion: reduce) {
+  .mood-orb, .setup-orb { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen">
+  <div class="setup-orb"></div>
+  <div>
+    <div class="setup-title">Wellness <span>Journal</span><br/>יומן <span>רווחה</span></div>
+  </div>
+  <p class="setup-sub">Your private space to reflect, feel, and grow — powered by AI.</p>
+  <div class="setup-card">
+    <div>
+      <label>Language / שפה</label>
+      <div class="lang-toggle" style="margin-top:0.5rem">
+        <button class="lang-btn active" id="lang-en" onclick="setLang('en')">English</button>
+        <button class="lang-btn" id="lang-he" onclick="setLang('he')">עברית</button>
+      </div>
+    </div>
+    <div>
+      <label id="apikey-label">Gemini API Key</label>
+      <input type="password" id="api-key-input" placeholder="AIza..." autocomplete="off"/>
+      <p style="font-size:0.72rem;color:var(--text-dim);margin-top:0.4rem" id="apikey-hint">
+        Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--lavender)">aistudio.google.com</a>
+      </p>
+    </div>
+    <button class="btn-primary" id="setup-btn" onclick="completeSetup()">Begin journaling →</button>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="app">
+  <header class="app-header">
+    <div class="app-logo" id="app-logo">Wellness <span>Journal</span></div>
+    <div class="header-actions">
+      <button class="icon-btn" title="Settings" onclick="toggleSettings()">⚙️</button>
+    </div>
+  </header>
+
+  <main class="app-content">
+    <!-- WRITE -->
+    <div class="tab-content active" id="tab-write">
+      <!-- Settings -->
+      <div class="settings-panel" id="settings-panel">
+        <div class="settings-row">
+          <span class="settings-label" id="lbl-apikey">Gemini API Key</span>
+          <input type="password" id="settings-api-key" placeholder="AIza..." style="background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:0.9rem;padding:0.6rem 0.8rem;width:100%;outline:none;"/>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label" id="lbl-lang">Language / שפה</span>
+          <div class="lang-toggle">
+            <button class="lang-btn" id="slang-en" onclick="setLang('en')">English</button>
+            <button class="lang-btn" id="slang-he" onclick="setLang('he')">עברית</button>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="saveSettings()" id="btn-save-settings">Save</button>
+      </div>
+
+      <!-- Mood orb -->
+      <div class="mood-orb-wrap">
+        <div class="mood-orb" id="mood-orb"></div>
+      </div>
+
+      <div class="mood-section">
+        <div class="section-label" id="lbl-mood">How are you feeling?</div>
+        <div class="mood-grid" id="mood-grid"></div>
+      </div>
+
+      <!-- AI Prompt -->
+      <div class="ai-panel" id="prompt-panel">
+        <div class="ai-panel-header">✨ <span id="lbl-prompt-title">Today's prompt</span></div>
+        <div class="ai-panel-body" id="prompt-body"></div>
+      </div>
+
+      <div class="write-area">
+        <textarea id="entry-text" rows="6" placeholder="Write what's on your mind..."></textarea>
+      </div>
+
+      <div class="write-actions">
+        <button class="btn-secondary" id="btn-get-prompt" onclick="getPrompt()">✨ <span id="lbl-get-prompt">Get prompt</span></button>
+        <button class="btn-secondary" id="btn-generate-art" onclick="generateArt()">🎨 <span id="lbl-gen-art">Generate art</span></button>
+        <button class="btn-secondary" id="btn-reflect" onclick="reflectEntry()">🔮 <span id="lbl-reflect">Reflect</span></button>
+      </div>
+
+      <!-- Reflection panel -->
+      <div class="ai-panel" id="reflect-panel">
+        <div class="ai-panel-header">🔮 <span id="lbl-reflect-title">Reflection</span></div>
+        <div class="ai-panel-body" id="reflect-body"></div>
+      </div>
+
+      <!-- Art panel -->
+      <div class="ai-panel" id="art-panel">
+        <div class="ai-panel-header">🎨 <span id="lbl-art-title">Your mood art</span></div>
+        <div class="ai-panel-body" id="art-body"></div>
+      </div>
+
+      <button class="btn-primary" id="btn-save" onclick="saveEntry()">Save entry</button>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="tab-content" id="tab-history">
+      <div class="section-label" id="lbl-history-title">Past entries</div>
+      <div class="entry-list" id="entry-list"></div>
+    </div>
+
+    <!-- INSIGHTS -->
+    <div class="tab-content" id="tab-insights">
+      <div class="insights-grid" id="insights-grid"></div>
+    </div>
+  </main>
+
+  <nav class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('write',this)" id="tabBtn-write">
+      <span class="tab-icon">✍️</span>
+      <span id="tabl-write">Write</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('history',this)" id="tabBtn-history">
+      <span class="tab-icon">📖</span>
+      <span id="tabl-history">History</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('insights',this)" id="tabBtn-insights">
+      <span class="tab-icon">🔮</span>
+      <span id="tabl-insights">Insights</span>
+    </button>
+  </nav>
+</div>
+
+<!-- Entry Modal -->
+<div class="modal-overlay" id="entry-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-date"></h2>
+      <button class="icon-btn" onclick="closeEntryModal()">✕</button>
+    </div>
+    <div class="modal-meta" id="modal-meta"></div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, push, onValue, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+// ── CONFIG ── Replace with your Firebase project details ──
+const firebaseConfig = {
+  apiKey: "AIzaSyBoVRxfOWTU-gmE3jTSFWGJEBsCtpCID6Y",
+  authDomain: "wellness-journal-ab6b0.firebaseapp.com",
+  databaseURL: "https://wellness-journal-ab6b0-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "wellness-journal-ab6b0",
+  storageBucket: "wellness-journal-ab6b0.firebasestorage.app",
+  messagingSenderId: "529811620033",
+  appId: "1:529811620033:web:f78f0936fb6646eb0a9440",
+  measurementId: "G-J8T2NQ7C1M"
+};
+// ────────────────────────────────────────────────────────
+
+let db;
+try {
+  const app = initializeApp(firebaseConfig);
+  db = getDatabase(app);
+  window._fbDb = db;
+  window._fbRef = ref;
+  window._fbPush = push;
+  window._fbOnValue = onValue;
+  window._fbTimestamp = serverTimestamp;
+} catch(e) {
+  console.warn("Firebase not configured — running in local mode");
+}
+</script>
+
+<script>
+// ── STATE ──
+const MOODS = [
+  { emoji:"😊", label:"Happy", labelHe:"שמח", color:"#8fb3a8", glow:"rgba(143,179,168,0.4)" },
+  { emoji:"😌", label:"Calm", labelHe:"רגוע", color:"#b8a9d4", glow:"rgba(184,169,212,0.4)" },
+  { emoji:"😔", label:"Sad", labelHe:"עצוב", color:"#7a99b8", glow:"rgba(122,153,184,0.4)" },
+  { emoji:"😤", label:"Anxious", labelHe:"חרד", color:"#e8b4b8", glow:"rgba(232,180,184,0.4)" },
+  { emoji:"😴", label:"Tired", labelHe:"עייף", color:"#9e8fad", glow:"rgba(158,143,173,0.4)" },
+  { emoji:"😠", label:"Angry", labelHe:"כועס", color:"#d4896a", glow:"rgba(212,137,106,0.4)" },
+  { emoji:"🤩", label:"Excited", labelHe:"נרגש", color:"#d4c46a", glow:"rgba(212,196,106,0.4)" },
+  { emoji:"😶", label:"Numb", labelHe:"קהה", color:"#6a8ab8", glow:"rgba(106,138,184,0.3)" },
+  { emoji:"🥰", label:"Grateful", labelHe:"אסיר תודה", color:"#d4a0c8", glow:"rgba(212,160,200,0.4)" },
+  { emoji:"😕", label:"Confused", labelHe:"מבולבל", color:"#b8b46a", glow:"rgba(184,180,106,0.3)" },
+];
+
+let state = {
+  lang: localStorage.getItem('wj_lang') || 'en',
+  apiKey: localStorage.getItem('wj_apikey') || '',
+  selectedMood: null,
+  entries: JSON.parse(localStorage.getItem('wj_entries') || '[]'),
+  generatedArtUrl: null,
+};
+
+// ── TRANSLATIONS ──
+const T = {
+  en: {
+    logo: 'Wellness <span>Journal</span>',
+    mood: 'How are you feeling?',
+    getPrompt: 'Get prompt',
+    genArt: 'Generate art',
+    reflect: 'Reflect',
+    save: 'Save entry',
+    historyTitle: 'Past entries',
+    tabWrite: 'Write',
+    tabHistory: 'History',
+    tabInsights: 'Insights',
+    promptTitle: "Today's prompt",
+    reflectTitle: 'Reflection',
+    artTitle: 'Your mood art',
+    apikey: 'Gemini API Key',
+    lang: 'Language / שפה',
+    saveSettings: 'Save',
+    toastSaved: '✓ Entry saved',
+    toastNeedMood: 'Please select a mood first',
+    toastNeedText: 'Write something first',
+    toastNeedKey: 'Add your Gemini API key in settings ⚙️',
+    emptyHistory: 'No entries yet.\nStart writing to see your history here.',
+    insightMoods: 'Mood frequency',
+    insightStreak: 'Journaling streak',
+    insightAI: 'AI reflection on your week',
+    streakDays: d => `${d} day${d===1?'':'s'} in a row`,
+    placeholder: "Write what's on your mind...",
+    modalClose: '✕',
+  },
+  he: {
+    logo: 'יומן <span>רווחה</span>',
+    mood: 'איך אתה מרגיש?',
+    getPrompt: 'קבל הנחיה',
+    genArt: 'צור אמנות',
+    reflect: 'השתקפות',
+    save: 'שמור רשומה',
+    historyTitle: 'רשומות קודמות',
+    tabWrite: 'כתיבה',
+    tabHistory: 'היסטוריה',
+    tabInsights: 'תובנות',
+    promptTitle: 'הנחיה להיום',
+    reflectTitle: 'השתקפות',
+    artTitle: 'האמנות שלך',
+    apikey: 'מפתח API של Gemini',
+    lang: 'שפה / Language',
+    saveSettings: 'שמור',
+    toastSaved: '✓ רשומה נשמרה',
+    toastNeedMood: 'בחר מצב רוח תחילה',
+    toastNeedText: 'כתוב משהו תחילה',
+    toastNeedKey: 'הוסף מפתח Gemini בהגדרות ⚙️',
+    emptyHistory: 'אין רשומות עדיין.\nהתחל לכתוב כדי לראות את ההיסטוריה שלך כאן.',
+    insightMoods: 'תדירות מצבי רוח',
+    insightStreak: 'רצף יומן',
+    insightAI: 'השתקפות AI על השבוע שלך',
+    streakDays: d => `${d} יום${d===1?'':'ים'} ברצף`,
+    placeholder: 'כתוב מה עובר עליך...',
+    modalClose: '✕',
+  }
+};
+
+function t(key) { return T[state.lang][key] || key; }
+
+// ── SETUP ──
+function setLang(lang) {
+  state.lang = lang;
+  document.getElementById('lang-en')?.classList.toggle('active', lang==='en');
+  document.getElementById('lang-he')?.classList.toggle('active', lang==='he');
+  document.getElementById('slang-en')?.classList.toggle('active', lang==='en');
+  document.getElementById('slang-he')?.classList.toggle('active', lang==='he');
+}
+
+function completeSetup() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (!key) { showToast('Please enter your Gemini API key'); return; }
+  state.apiKey = key;
+  localStorage.setItem('wj_apikey', key);
+  localStorage.setItem('wj_lang', state.lang);
+  launchApp();
+}
+
+function launchApp() {
+  document.getElementById('setup-screen').style.display = 'none';
+  const app = document.getElementById('app');
+  app.classList.add('visible');
+  applyLang();
+  buildMoodGrid();
+  renderHistory();
+  renderInsights();
+  loadFromFirebase();
+}
+
+function applyLang() {
+  const isHe = state.lang === 'he';
+  document.body.classList.toggle('rtl', isHe);
+  document.documentElement.dir = isHe ? 'rtl' : 'ltr';
+
+  const logo = document.getElementById('app-logo');
+  if(logo) logo.innerHTML = t('logo');
+
+  document.getElementById('lbl-mood').textContent = t('mood');
+  document.getElementById('lbl-get-prompt').textContent = t('getPrompt');
+  document.getElementById('lbl-gen-art').textContent = t('genArt');
+  document.getElementById('lbl-reflect').textContent = t('reflect');
+  document.getElementById('btn-save').textContent = t('save');
+  document.getElementById('lbl-history-title').textContent = t('historyTitle');
+  document.getElementById('lbl-prompt-title').textContent = t('promptTitle');
+  document.getElementById('lbl-reflect-title').textContent = t('reflectTitle');
+  document.getElementById('lbl-art-title').textContent = t('artTitle');
+  document.getElementById('lbl-apikey').textContent = t('apikey');
+  document.getElementById('lbl-lang').textContent = t('lang');
+  document.getElementById('btn-save-settings').textContent = t('saveSettings');
+  document.getElementById('tabl-write').textContent = t('tabWrite');
+  document.getElementById('tabl-history').textContent = t('tabHistory');
+  document.getElementById('tabl-insights').textContent = t('tabInsights');
+  document.getElementById('entry-text').placeholder = t('placeholder');
+}
+
+// ── MOOD ──
+function buildMoodGrid() {
+  const grid = document.getElementById('mood-grid');
+  grid.innerHTML = MOODS.map((m,i) => `
+    <div class="mood-chip" data-i="${i}" onclick="selectMood(${i})">
+      <span>${m.emoji}</span>
+      <span class="mood-label">${state.lang==='he'?m.labelHe:m.label}</span>
+    </div>
+  `).join('');
+}
+
+function selectMood(i) {
+  state.selectedMood = i;
+  const m = MOODS[i];
+  document.querySelectorAll('.mood-chip').forEach((c,j) => c.classList.toggle('selected', j===i));
+  const orb = document.getElementById('mood-orb');
+  orb.style.setProperty('--orb-color', m.color);
+  orb.style.setProperty('--orb-glow', m.glow);
+  orb.style.background = `radial-gradient(circle at 35% 35%, ${m.color}, #2f2f5a)`;
+  orb.style.boxShadow = `0 0 40px ${m.glow}`;
+}
+
+// ── GEMINI API ──
+async function callGemini(prompt, imageMode = false) {
+  const key = state.apiKey || localStorage.getItem('wj_apikey');
+  if (!key) throw new Error('no_key');
+
+  if (imageMode) {
+    // Use Imagen 3 via Gemini API
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        instances: [{ prompt }],
+        parameters: { sampleCount: 1, aspectRatio: "1:1" }
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const b64 = data.predictions?.[0]?.bytesBase64Encoded;
+    if (!b64) throw new Error('No image returned');
+    return `data:image/png;base64,${b64}`;
+  } else {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.9, maxOutputTokens: 400 }
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  }
+}
+
+// ── AI FEATURES ──
+async function getPrompt() {
+  const key = state.apiKey || localStorage.getItem('wj_apikey');
+  if (!key) { showToast(t('toastNeedKey')); return; }
+  const mood = state.selectedMood !== null ? MOODS[state.selectedMood] : null;
+  const moodStr = mood ? (state.lang==='he' ? mood.labelHe : mood.label) : 'neutral';
+  const lang = state.lang === 'he' ? 'Hebrew' : 'English';
+
+  const panel = document.getElementById('prompt-panel');
+  const body = document.getElementById('prompt-body');
+  panel.classList.add('visible');
+  body.innerHTML = `<div class="ai-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+
+  try {
+    const prompt = `You are a compassionate wellness journal guide. Generate ONE thoughtful, emotionally intelligent journal prompt for someone feeling ${moodStr}. The prompt should help them explore their feelings with curiosity and self-compassion. Write in ${lang}. Be warm, specific, and avoid clichés. 2-3 sentences max.`;
+    const text = await callGemini(prompt);
+    body.innerHTML = text;
+  } catch(e) {
+    body.innerHTML = handleError(e);
+  }
+}
+
+async function reflectEntry() {
+  const text = document.getElementById('entry-text').value.trim();
+  if (!text) { showToast(t('toastNeedText')); return; }
+  const key = state.apiKey || localStorage.getItem('wj_apikey');
+  if (!key) { showToast(t('toastNeedKey')); return; }
+
+  const mood = state.selectedMood !== null ? MOODS[state.selectedMood] : null;
+  const moodStr = mood ? (state.lang==='he' ? mood.labelHe : mood.label) : 'unspecified';
+  const lang = state.lang === 'he' ? 'Hebrew' : 'English';
+
+  const panel = document.getElementById('reflect-panel');
+  const body = document.getElementById('reflect-body');
+  panel.classList.add('visible');
+  body.innerHTML = `<div class="ai-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+
+  try {
+    const prompt = `You are a warm, insightful wellness coach. Read this journal entry written by someone feeling ${moodStr}:\n\n"${text}"\n\nProvide a brief, compassionate reflection (3-4 sentences) in ${lang}. Notice patterns, validate emotions, and offer one gentle insight. Be human, not clinical.`;
+    const result = await callGemini(prompt);
+    body.innerHTML = result;
+  } catch(e) {
+    body.innerHTML = handleError(e);
+  }
+}
+
+async function generateArt() {
+  const key = state.apiKey || localStorage.getItem('wj_apikey');
+  if (!key) { showToast(t('toastNeedKey')); return; }
+  if (state.selectedMood === null) { showToast(t('toastNeedMood')); return; }
+
+  const mood = MOODS[state.selectedMood];
+  const panel = document.getElementById('art-panel');
+  const body = document.getElementById('art-body');
+  panel.classList.add('visible');
+  body.innerHTML = `<div class="ai-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+
+  const text = document.getElementById('entry-text').value.trim();
+  const contextClue = text ? `. Context: ${text.substring(0,100)}` : '';
+
+  try {
+    // First ask Gemini to craft an image prompt
+    const promptGen = await callGemini(`Create a vivid, poetic image generation prompt for an abstract artwork representing the emotion "${mood.label}"${contextClue}. Style: soft watercolor, dreamy, emotional, wellness aesthetic. 1 sentence, no people.`);
+    const imgUrl = await callGemini(promptGen.trim(), true);
+    state.generatedArtUrl = imgUrl;
+    body.innerHTML = `<img src="${imgUrl}" alt="Mood art"/>`;
+  } catch(e) {
+    // Imagen may not be available on all keys — show graceful message
+    body.innerHTML = `<p style="color:var(--text-dim);font-size:0.85rem">🎨 Art generation requires Imagen 3 access. <a href="https://aistudio.google.com" target="_blank" style="color:var(--lavender)">Enable it in AI Studio</a> or your project may not have Imagen access yet.</p>`;
+    console.error(e);
+  }
+}
+
+function handleError(e) {
+  if (e.message === 'no_key') return `<span style="color:var(--blush)">Add your Gemini API key in settings ⚙️</span>`;
+  if (e.message.includes('API_KEY')) return `<span style="color:var(--blush)">Invalid API key. Check settings ⚙️</span>`;
+  return `<span style="color:var(--blush)">Something went wrong. Try again.</span>`;
+}
+
+// ── SAVE ENTRY ──
+function saveEntry() {
+  const text = document.getElementById('entry-text').value.trim();
+  if (!text) { showToast(t('toastNeedText')); return; }
+
+  const entry = {
+    id: Date.now().toString(),
+    text,
+    mood: state.selectedMood,
+    artUrl: state.generatedArtUrl || null,
+    reflection: document.getElementById('reflect-body').textContent || '',
+    timestamp: Date.now(),
+    lang: state.lang,
+  };
+
+  state.entries.unshift(entry);
+  localStorage.setItem('wj_entries', JSON.stringify(state.entries));
+
+  // Firebase
+  if (window._fbDb) {
+    try {
+      window._fbPush(window._fbRef(window._fbDb, 'entries'), {...entry, serverTime: window._fbTimestamp()});
+    } catch(e) { console.warn('Firebase write failed', e); }
+  }
+
+  // Reset
+  document.getElementById('entry-text').value = '';
+  state.selectedMood = null;
+  state.generatedArtUrl = null;
+  document.querySelectorAll('.mood-chip').forEach(c => c.classList.remove('selected'));
+  const orb = document.getElementById('mood-orb');
+  orb.style.background = '';
+  orb.style.boxShadow = '';
+  ['prompt-panel','reflect-panel','art-panel'].forEach(id => {
+    document.getElementById(id).classList.remove('visible');
+  });
+
+  showToast(t('toastSaved'));
+  renderHistory();
+  renderInsights();
+}
+
+// ── HISTORY ──
+function renderHistory() {
+  const list = document.getElementById('entry-list');
+  if (!state.entries.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📖</div><p>${t('emptyHistory')}</p></div>`;
+    return;
+  }
+  list.innerHTML = state.entries.map((e,i) => {
+    const m = e.mood !== null && e.mood !== undefined ? MOODS[e.mood] : null;
+    const date = new Date(e.timestamp).toLocaleDateString(state.lang==='he'?'he-IL':'en-US', {weekday:'short',month:'short',day:'numeric'});
+    return `
+      <div class="entry-card" onclick="openEntry(${i})">
+        <div class="entry-meta">
+          ${m ? `<div class="entry-mood-dot" style="background:${m.color}"></div><span style="font-size:1rem">${m.emoji}</span>` : ''}
+          <span class="entry-date">${date}</span>
+        </div>
+        <div class="entry-preview ${state.lang==='he'?'rtl':''}">${e.text}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openEntry(i) {
+  const e = state.entries[i];
+  const m = e.mood !== null && e.mood !== undefined ? MOODS[e.mood] : null;
+  const date = new Date(e.timestamp).toLocaleDateString(state.lang==='he'?'he-IL':'en-US', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('modal-date').textContent = date;
+  document.getElementById('modal-meta').innerHTML = m ? `${m.emoji} <span style="color:${m.color}">${state.lang==='he'?m.labelHe:m.label}</span>` : '';
+  let body = `<p>${e.text}</p>`;
+  if (e.artUrl) body += `<img src="${e.artUrl}" alt="Mood art" style="width:100%;border-radius:var(--radius-sm);margin-top:0.75rem"/>`;
+  if (e.reflection) body += `<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.85rem;color:var(--text-dim)"><div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--lavender);margin-bottom:0.5rem">🔮 Reflection</div>${e.reflection}</div>`;
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal-body').classList.toggle('rtl', e.lang==='he');
+  document.getElementById('entry-modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target.id === 'entry-modal') closeEntryModal();
+}
+function closeEntryModal() {
+  document.getElementById('entry-modal').classList.remove('open');
+}
+
+// ── INSIGHTS ──
+function renderInsights() {
+  const grid = document.getElementById('insights-grid');
+  if (!state.entries.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">🔮</div><p>${t('emptyHistory')}</p></div>`;
+    return;
+  }
+
+  // Mood frequency
+  const moodCounts = {};
+  state.entries.forEach(e => {
+    if (e.mood !== null && e.mood !== undefined) moodCounts[e.mood] = (moodCounts[e.mood]||0)+1;
+  });
+  const maxCount = Math.max(...Object.values(moodCounts), 1);
+  const moodBars = MOODS.map((m,i) => {
+    const count = moodCounts[i] || 0;
+    if (!count) return '';
+    return `<div class="mood-bar-row">
+      <span class="emoji">${m.emoji}</span>
+      <div class="mood-bar-bg"><div class="mood-bar-fill" style="width:${(count/maxCount)*100}%;background:linear-gradient(90deg,${m.color},${m.color}88)"></div></div>
+      <span class="mood-bar-count">${count}</span>
+    </div>`;
+  }).filter(Boolean).join('');
+
+  // Streak
+  const days = [...new Set(state.entries.map(e => new Date(e.timestamp).toDateString()))];
+  let streak = 0;
+  const today = new Date().toDateString();
+  let check = new Date();
+  while(days.includes(check.toDateString())) {
+    streak++;
+    check.setDate(check.getDate()-1);
+  }
+
+  grid.innerHTML = `
+    <div class="insight-card">
+      <h3>${t('insightMoods')}</h3>
+      <div class="mood-bar-wrap">${moodBars || '<p>No mood data yet.</p>'}</div>
+    </div>
+    <div class="insight-card">
+      <h3>${t('insightStreak')}</h3>
+      <p style="font-size:2rem;font-family:var(--font-display);color:var(--lavender)">${streak}</p>
+      <p style="margin-top:0.25rem">${t('streakDays')(streak)}</p>
+    </div>
+    <div class="insight-card" id="insight-ai-card">
+      <h3>${t('insightAI')}</h3>
+      <p id="insight-ai-text" style="color:var(--text-dim);font-size:0.85rem">Tap to generate weekly reflection</p>
+      <button class="btn-secondary" style="margin-top:0.75rem;width:100%" onclick="getWeeklyReflection()">✨ Generate</button>
+    </div>
+  `;
+}
+
+async function getWeeklyReflection() {
+  const key = state.apiKey || localStorage.getItem('wj_apikey');
+  if (!key) { showToast(t('toastNeedKey')); return; }
+  const el = document.getElementById('insight-ai-text');
+  el.innerHTML = `<div class="ai-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+
+  const recent = state.entries.slice(0, 7);
+  const summary = recent.map(e => {
+    const m = e.mood !== null && e.mood !== undefined ? MOODS[e.mood].label : 'unknown';
+    return `- Mood: ${m}. "${e.text.substring(0,120)}"`;
+  }).join('\n');
+
+  const lang = state.lang === 'he' ? 'Hebrew' : 'English';
+  try {
+    const result = await callGemini(`You are a compassionate wellness coach. Here are someone's recent journal entries:\n${summary}\n\nWrite a warm, insightful weekly reflection in ${lang} (4-5 sentences). Notice emotional patterns, celebrate resilience, and offer gentle encouragement. Avoid clichés.`);
+    el.innerHTML = result;
+  } catch(e) {
+    el.innerHTML = handleError(e);
+  }
+}
+
+// ── UI HELPERS ──
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'history') renderHistory();
+  if (tab === 'insights') renderInsights();
+}
+
+function toggleSettings() {
+  const p = document.getElementById('settings-panel');
+  p.classList.toggle('open');
+  if (p.classList.contains('open')) {
+    document.getElementById('settings-api-key').value = state.apiKey;
+    document.getElementById('slang-en').classList.toggle('active', state.lang==='en');
+    document.getElementById('slang-he').classList.toggle('active', state.lang==='he');
+  }
+}
+
+function saveSettings() {
+  const key = document.getElementById('settings-api-key').value.trim();
+  if (key) { state.apiKey = key; localStorage.setItem('wj_apikey', key); }
+  localStorage.setItem('wj_lang', state.lang);
+  document.getElementById('settings-panel').classList.remove('open');
+  applyLang();
+  buildMoodGrid();
+  renderHistory();
+  showToast('✓ Settings saved');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function loadFromFirebase() {
+  if (!window._fbDb) return;
+  try {
+    window._fbOnValue(window._fbRef(window._fbDb, 'entries'), snap => {
+      const data = snap.val();
+      if (!data) return;
+      const remote = Object.values(data).sort((a,b) => b.timestamp - a.timestamp);
+      // Merge: add remote entries not in local
+      const localIds = new Set(state.entries.map(e => e.id));
+      remote.forEach(e => { if (!localIds.has(e.id)) state.entries.push(e); });
+      state.entries.sort((a,b) => b.timestamp - a.timestamp);
+      localStorage.setItem('wj_entries', JSON.stringify(state.entries));
+      renderHistory();
+      renderInsights();
+    });
+  } catch(e) { console.warn('Firebase read failed', e); }
+}
+
+// ── INIT ──
+window.setLang = setLang;
+window.completeSetup = completeSetup;
+window.selectMood = selectMood;
+window.getPrompt = getPrompt;
+window.reflectEntry = reflectEntry;
+window.generateArt = generateArt;
+window.saveEntry = saveEntry;
+window.openEntry = openEntry;
+window.closeModal = closeModal;
+window.closeEntryModal = closeEntryModal;
+window.switchTab = switchTab;
+window.toggleSettings = toggleSettings;
+window.saveSettings = saveSettings;
+window.getWeeklyReflection = getWeeklyReflection;
+
+// Check if already set up
+if (state.apiKey) {
+  launchApp();
+} else {
+  // Pre-select lang on setup screen
+  setLang(state.lang);
+}
+</script>
+
+<!-- Service Worker registration -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
