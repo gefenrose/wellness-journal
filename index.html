@@ -650,6 +650,29 @@ input[type=range].mood-range:focus { outline: none; }
 @media (prefers-reduced-motion: reduce) {
   .mood-orb, .setup-orb { animation: none; }
 }
+
+/* ── WIDE VIEWPORTS ──
+   This is a mobile-first layout; on phones/narrow windows it already
+   fills the screen edge-to-edge as designed. On wider windows (desktop,
+   tablet landscape) frame it as a centered panel instead of stretching
+   everything across the full width. */
+@media (min-width: 720px) {
+  body {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(184,169,212,0.08), transparent 60%),
+      #12101f;
+  }
+  #setup-screen, #app {
+    max-width: 480px;
+    margin: 0 auto;
+    box-shadow: 0 0 0 1px var(--border), 0 30px 80px rgba(0,0,0,0.45);
+  }
+  .tab-bar {
+    max-width: 480px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
 </style>
 </head>
 <body>
