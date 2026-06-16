@@ -901,12 +901,15 @@ const T = {
     reflectTitle: 'Reflection',
     lang: 'Language / שפה',
     saveSettings: 'Save',
+    toastSettingsSaved: '✓ Settings saved',
     toastSaved: '✓ Entry saved',
     toastNeedText: 'Write something first',
+    toastError: 'Something went wrong. Try again.',
     emptyHistory: 'No entries yet.\nStart writing to see your history here.',
     insightMoods: 'Mood frequency',
     insightStreak: 'Journaling streak',
     insightAI: 'AI reflection on your week',
+    insightAITap: 'Tap to generate weekly reflection',
     streakDays: d => `${d} day${d===1?'':'s'} in a row`,
     placeholder: "Write what's on your mind...",
     modalClose: '✕',
@@ -925,12 +928,15 @@ const T = {
     reflectTitle: 'השתקפות',
     lang: 'שפה / Language',
     saveSettings: 'שמור',
+    toastSettingsSaved: '✓ ההגדרות נשמרו',
     toastSaved: '✓ רשומה נשמרה',
     toastNeedText: 'כתוב משהו תחילה',
+    toastError: 'משהו השתבש. נסה שוב.',
     emptyHistory: 'אין רשומות עדיין.\nהתחל לכתוב כדי לראות את ההיסטוריה שלך כאן.',
     insightMoods: 'תדירות מצבי רוח',
     insightStreak: 'רצף יומן',
     insightAI: 'השתקפות AI על השבוע שלך',
+    insightAITap: 'הקש כדי ליצור השתקפות שבועית',
     streakDays: d => `${d} יום${d===1?'':'ים'} ברצף`,
     placeholder: 'כתוב מה עובר עליך...',
     modalClose: '✕',
@@ -1101,7 +1107,7 @@ async function reflectEntry() {
 }
 
 function handleError(e) {
-  return `<span style="color:var(--blush)">Something went wrong. Try again.</span>`;
+  return `<span style="color:var(--blush)">${t('toastError')}</span>`;
 }
 
 // ── SAVE ENTRY ──
@@ -1235,7 +1241,7 @@ function renderInsights() {
     </div>
     <div class="insight-card" id="insight-ai-card">
       <h3>${t('insightAI')}</h3>
-      <p id="insight-ai-text" style="color:var(--text-dim);font-size:0.85rem">Tap to generate weekly reflection</p>
+      <p id="insight-ai-text" style="color:var(--text-dim);font-size:0.85rem">${t('insightAITap')}</p>
       <button class="btn-secondary" style="margin-top:0.75rem;width:100%" onclick="getWeeklyReflection()"><i data-lucide="sparkles" width="15" height="15"></i> Generate</button>
     </div>
   `;
@@ -1286,7 +1292,7 @@ function saveSettings() {
   applyLang();
   buildMoodGrid();
   renderHistory();
-  showToast('✓ Settings saved');
+  showToast(t('toastSettingsSaved'));
 }
 
 function showToast(msg) {
