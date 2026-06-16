@@ -310,6 +310,16 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
     #7ab8a0, #8fb88a, #b8b46a, #d4a0c8, #e8c4d0
   );
 }
+/* In RTL (Hebrew) the native range input flips so 0 sits on the right.
+   Flip the gradient direction too so the red "Suffering / סובל" end
+   stays under the thumb's actual min position instead of the left side. */
+.rtl .mood-slider-track::before {
+  background: linear-gradient(to left,
+    #6b3a4a, #7a4a5e, #7a6070, #6a7a9e, #6a8aae,
+    #7a8aaa, #8a8ab0, #8a9ab8, #7a9eb8, #7aaeb0,
+    #7ab8a0, #8fb88a, #b8b46a, #d4a0c8, #e8c4d0
+  );
+}
 
 input[type=range].mood-range {
   -webkit-appearance: none;
@@ -444,11 +454,6 @@ input[type=range].mood-range:focus { outline: none; }
   font-size: 0.95rem;
   line-height: 1.7;
   white-space: pre-wrap;
-}
-.ai-panel-body img {
-  width: 100%;
-  border-radius: var(--radius-sm);
-  margin-top: 0.75rem;
 }
 .ai-loading {
   display: flex;
@@ -595,7 +600,6 @@ input[type=range].mood-range:focus { outline: none; }
 .modal-header h2 { font-family: var(--font-display); font-size: 1.3rem; color: var(--moon); }
 
 .modal-body { font-size: 0.95rem; color: var(--moon-dim); line-height: 1.7; }
-.modal-body img { width: 100%; border-radius: var(--radius-sm); margin-top: 0.75rem; }
 .rtl .modal-body { font-family: var(--font-he); text-align: right; }
 
 .modal-meta { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--text-dim); }
@@ -661,13 +665,6 @@ input[type=range].mood-range:focus { outline: none; }
         <button class="lang-btn" id="lang-he" onclick="setLang('he')">עברית</button>
       </div>
     </div>
-    <div>
-      <label id="apikey-label">Gemini API Key</label>
-      <input type="password" id="api-key-input" placeholder="AIza..." autocomplete="off"/>
-      <p style="font-size:0.72rem;color:var(--text-dim);margin-top:0.4rem" id="apikey-hint">
-        Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--lavender)">aistudio.google.com</a>
-      </p>
-    </div>
     <button class="btn-primary" id="setup-btn" onclick="completeSetup()">Begin journaling →</button>
   </div>
 </div>
@@ -686,10 +683,6 @@ input[type=range].mood-range:focus { outline: none; }
     <div class="tab-content active" id="tab-write">
       <!-- Settings -->
       <div class="settings-panel" id="settings-panel">
-        <div class="settings-row">
-          <span class="settings-label" id="lbl-apikey">Gemini API Key</span>
-          <input type="password" id="settings-api-key" placeholder="AIza..." style="background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:1rem;padding:0.6rem 0.8rem;width:100%;outline:none;-webkit-appearance:none;appearance:none;"/>
-        </div>
         <div class="settings-row">
           <span class="settings-label" id="lbl-lang">Language / שפה</span>
           <div class="lang-toggle">
@@ -734,7 +727,6 @@ input[type=range].mood-range:focus { outline: none; }
 
       <div class="write-actions">
         <button class="btn-secondary" id="btn-get-prompt" onclick="getPrompt()">✨ <span id="lbl-get-prompt">Get prompt</span></button>
-        <button class="btn-secondary" id="btn-generate-art" onclick="generateArt()">🎨 <span id="lbl-gen-art">Generate art</span></button>
         <button class="btn-secondary" id="btn-reflect" onclick="reflectEntry()">🔮 <span id="lbl-reflect">Reflect</span></button>
       </div>
 
@@ -742,12 +734,6 @@ input[type=range].mood-range:focus { outline: none; }
       <div class="ai-panel" id="reflect-panel">
         <div class="ai-panel-header">🔮 <span id="lbl-reflect-title">Reflection</span></div>
         <div class="ai-panel-body" id="reflect-body"></div>
-      </div>
-
-      <!-- Art panel -->
-      <div class="ai-panel" id="art-panel">
-        <div class="ai-panel-header">🎨 <span id="lbl-art-title">Your mood art</span></div>
-        <div class="ai-panel-body" id="art-body"></div>
       </div>
 
       <button class="btn-primary" id="btn-save" onclick="saveEntry()">Save entry</button>
@@ -850,10 +836,8 @@ const MOODS = [
 
 let state = {
   lang: localStorage.getItem('wj_lang') || 'en',
-  apiKey: localStorage.getItem('wj_apikey') || '',
   selectedMood: null,
   entries: JSON.parse(localStorage.getItem('wj_entries') || '[]'),
-  generatedArtUrl: null,
 };
 
 // ── TRANSLATIONS ──
@@ -862,7 +846,6 @@ const T = {
     logo: 'Wellness <span>Journal</span>',
     mood: 'How are you feeling?',
     getPrompt: 'Get prompt',
-    genArt: 'Generate art',
     reflect: 'Reflect',
     save: 'Save entry',
     historyTitle: 'Past entries',
@@ -871,14 +854,10 @@ const T = {
     tabInsights: 'Insights',
     promptTitle: "Today's prompt",
     reflectTitle: 'Reflection',
-    artTitle: 'Your mood art',
-    apikey: 'Gemini API Key',
     lang: 'Language / שפה',
     saveSettings: 'Save',
     toastSaved: '✓ Entry saved',
-    toastNeedMood: 'Please select a mood first',
     toastNeedText: 'Write something first',
-    toastNeedKey: 'Add your Gemini API key in settings ⚙️',
     emptyHistory: 'No entries yet.\nStart writing to see your history here.',
     insightMoods: 'Mood frequency',
     insightStreak: 'Journaling streak',
@@ -891,7 +870,6 @@ const T = {
     logo: 'יומן <span>רווחה</span>',
     mood: 'איך אתה מרגיש?',
     getPrompt: 'קבל הנחיה',
-    genArt: 'צור אמנות',
     reflect: 'השתקפות',
     save: 'שמור רשומה',
     historyTitle: 'רשומות קודמות',
@@ -900,14 +878,10 @@ const T = {
     tabInsights: 'תובנות',
     promptTitle: 'הנחיה להיום',
     reflectTitle: 'השתקפות',
-    artTitle: 'האמנות שלך',
-    apikey: 'מפתח API של Gemini',
     lang: 'שפה / Language',
     saveSettings: 'שמור',
     toastSaved: '✓ רשומה נשמרה',
-    toastNeedMood: 'בחר מצב רוח תחילה',
     toastNeedText: 'כתוב משהו תחילה',
-    toastNeedKey: 'הוסף מפתח Gemini בהגדרות ⚙️',
     emptyHistory: 'אין רשומות עדיין.\nהתחל לכתוב כדי לראות את ההיסטוריה שלך כאן.',
     insightMoods: 'תדירות מצבי רוח',
     insightStreak: 'רצף יומן',
@@ -930,11 +904,8 @@ function setLang(lang) {
 }
 
 function completeSetup() {
-  const key = document.getElementById('api-key-input').value.trim();
-  if (!key) { showToast('Please enter your Gemini API key'); return; }
-  state.apiKey = key;
-  localStorage.setItem('wj_apikey', key);
   localStorage.setItem('wj_lang', state.lang);
+  localStorage.setItem('wj_setup_done', '1');
   launchApp();
 }
 
@@ -959,14 +930,11 @@ function applyLang() {
 
   document.getElementById('lbl-mood').textContent = t('mood');
   document.getElementById('lbl-get-prompt').textContent = t('getPrompt');
-  document.getElementById('lbl-gen-art').textContent = t('genArt');
   document.getElementById('lbl-reflect').textContent = t('reflect');
   document.getElementById('btn-save').textContent = t('save');
   document.getElementById('lbl-history-title').textContent = t('historyTitle');
   document.getElementById('lbl-prompt-title').textContent = t('promptTitle');
   document.getElementById('lbl-reflect-title').textContent = t('reflectTitle');
-  document.getElementById('lbl-art-title').textContent = t('artTitle');
-  document.getElementById('lbl-apikey').textContent = t('apikey');
   document.getElementById('lbl-lang').textContent = t('lang');
   document.getElementById('btn-save-settings').textContent = t('saveSettings');
   document.getElementById('tabl-write').textContent = t('tabWrite');
@@ -1026,45 +994,26 @@ function selectMood(i) {
   onSliderMove(i);
 }
 
-// ── GEMINI API ──
-async function callGemini(prompt, imageMode = false) {
-  const key = state.apiKey || localStorage.getItem('wj_apikey');
-  if (!key) throw new Error('no_key');
+// ── AI PROXY ──
+// Calls the Cloudflare Worker (worker/worker.js) instead of an AI provider
+// directly, so no personal API key is needed on this device — the worker
+// holds the key server-side. After deploying the worker (see README),
+// paste the resulting *.workers.dev URL below.
+const WORKER_URL = 'https://wellness-journal-api.gefenrose.workers.dev';
 
-  if (imageMode) {
-    // Use Imagen 3 via Gemini API
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${key}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        instances: [{ prompt }],
-        parameters: { sampleCount: 1, aspectRatio: "1:1" }
-      })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    const b64 = data.predictions?.[0]?.bytesBase64Encoded;
-    if (!b64) throw new Error('No image returned');
-    return `data:image/png;base64,${b64}`;
-  } else {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.9, maxOutputTokens: 400 }
-      })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  }
+async function callAI(prompt) {
+  const res = await fetch(WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt })
+  });
+  const data = await res.json();
+  if (!res.ok || data.error) throw new Error(data.error || 'request_failed');
+  return data.content?.[0]?.text || '';
 }
 
 // ── AI FEATURES ──
 async function getPrompt() {
-  const key = state.apiKey || localStorage.getItem('wj_apikey');
-  if (!key) { showToast(t('toastNeedKey')); return; }
   const mood = state.selectedMood !== null ? MOODS[state.selectedMood] : null;
   const moodStr = mood ? (state.lang==='he' ? mood.labelHe : mood.label) : 'neutral';
   const lang = state.lang === 'he' ? 'Hebrew' : 'English';
@@ -1076,7 +1025,7 @@ async function getPrompt() {
 
   try {
     const prompt = `You are a compassionate wellness journal guide. Generate ONE thoughtful, emotionally intelligent journal prompt for someone feeling ${moodStr}. The prompt should help them explore their feelings with curiosity and self-compassion. Write in ${lang}. Be warm, specific, and avoid clichés. 2-3 sentences max.`;
-    const text = await callGemini(prompt);
+    const text = await callAI(prompt);
     body.innerHTML = text;
   } catch(e) {
     body.innerHTML = handleError(e);
@@ -1086,8 +1035,6 @@ async function getPrompt() {
 async function reflectEntry() {
   const text = document.getElementById('entry-text').value.trim();
   if (!text) { showToast(t('toastNeedText')); return; }
-  const key = state.apiKey || localStorage.getItem('wj_apikey');
-  if (!key) { showToast(t('toastNeedKey')); return; }
 
   const mood = state.selectedMood !== null ? MOODS[state.selectedMood] : null;
   const moodStr = mood ? (state.lang==='he' ? mood.labelHe : mood.label) : 'unspecified';
@@ -1100,43 +1047,14 @@ async function reflectEntry() {
 
   try {
     const prompt = `You are a warm, insightful wellness coach. Read this journal entry written by someone feeling ${moodStr}:\n\n"${text}"\n\nProvide a brief, compassionate reflection (3-4 sentences) in ${lang}. Notice patterns, validate emotions, and offer one gentle insight. Be human, not clinical.`;
-    const result = await callGemini(prompt);
+    const result = await callAI(prompt);
     body.innerHTML = result;
   } catch(e) {
     body.innerHTML = handleError(e);
   }
 }
 
-async function generateArt() {
-  const key = state.apiKey || localStorage.getItem('wj_apikey');
-  if (!key) { showToast(t('toastNeedKey')); return; }
-  if (state.selectedMood === null) { showToast(t('toastNeedMood')); return; }
-
-  const mood = MOODS[state.selectedMood];
-  const panel = document.getElementById('art-panel');
-  const body = document.getElementById('art-body');
-  panel.classList.add('visible');
-  body.innerHTML = `<div class="ai-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
-
-  const text = document.getElementById('entry-text').value.trim();
-  const contextClue = text ? `. Context: ${text.substring(0,100)}` : '';
-
-  try {
-    // First ask Gemini to craft an image prompt
-    const promptGen = await callGemini(`Create a vivid, poetic image generation prompt for an abstract artwork representing the emotion "${mood.label}"${contextClue}. Style: soft watercolor, dreamy, emotional, wellness aesthetic. 1 sentence, no people.`);
-    const imgUrl = await callGemini(promptGen.trim(), true);
-    state.generatedArtUrl = imgUrl;
-    body.innerHTML = `<img src="${imgUrl}" alt="Mood art"/>`;
-  } catch(e) {
-    // Imagen may not be available on all keys — show graceful message
-    body.innerHTML = `<p style="color:var(--text-dim);font-size:0.85rem">🎨 Art generation requires Imagen 3 access. <a href="https://aistudio.google.com" target="_blank" style="color:var(--lavender)">Enable it in AI Studio</a> or your project may not have Imagen access yet.</p>`;
-    console.error(e);
-  }
-}
-
 function handleError(e) {
-  if (e.message === 'no_key') return `<span style="color:var(--blush)">Add your Gemini API key in settings ⚙️</span>`;
-  if (e.message.includes('API_KEY')) return `<span style="color:var(--blush)">Invalid API key. Check settings ⚙️</span>`;
   return `<span style="color:var(--blush)">Something went wrong. Try again.</span>`;
 }
 
@@ -1149,7 +1067,6 @@ function saveEntry() {
     id: Date.now().toString(),
     text,
     mood: state.selectedMood,
-    artUrl: state.generatedArtUrl || null,
     reflection: document.getElementById('reflect-body').textContent || '',
     timestamp: Date.now(),
     lang: state.lang,
@@ -1168,12 +1085,11 @@ function saveEntry() {
   // Reset
   document.getElementById('entry-text').value = '';
   state.selectedMood = null;
-  state.generatedArtUrl = null;
   document.querySelectorAll('.mood-chip').forEach(c => c.classList.remove('selected'));
   const orb = document.getElementById('mood-orb');
   orb.style.background = '';
   orb.style.boxShadow = '';
-  ['prompt-panel','reflect-panel','art-panel'].forEach(id => {
+  ['prompt-panel','reflect-panel'].forEach(id => {
     document.getElementById(id).classList.remove('visible');
   });
 
@@ -1211,7 +1127,6 @@ function openEntry(i) {
   document.getElementById('modal-date').textContent = date;
   document.getElementById('modal-meta').innerHTML = m ? `${m.emoji} <span style="color:${m.color}">${state.lang==='he'?m.labelHe:m.label}</span>` : '';
   let body = `<p>${e.text}</p>`;
-  if (e.artUrl) body += `<img src="${e.artUrl}" alt="Mood art" style="width:100%;border-radius:var(--radius-sm);margin-top:0.75rem"/>`;
   if (e.reflection) body += `<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.85rem;color:var(--text-dim)"><div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--lavender);margin-bottom:0.5rem">🔮 Reflection</div>${e.reflection}</div>`;
   document.getElementById('modal-body').innerHTML = body;
   document.getElementById('modal-body').classList.toggle('rtl', e.lang==='he');
@@ -1278,8 +1193,6 @@ function renderInsights() {
 }
 
 async function getWeeklyReflection() {
-  const key = state.apiKey || localStorage.getItem('wj_apikey');
-  if (!key) { showToast(t('toastNeedKey')); return; }
   const el = document.getElementById('insight-ai-text');
   el.innerHTML = `<div class="ai-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
 
@@ -1291,7 +1204,7 @@ async function getWeeklyReflection() {
 
   const lang = state.lang === 'he' ? 'Hebrew' : 'English';
   try {
-    const result = await callGemini(`You are a compassionate wellness coach. Here are someone's recent journal entries:\n${summary}\n\nWrite a warm, insightful weekly reflection in ${lang} (4-5 sentences). Notice emotional patterns, celebrate resilience, and offer gentle encouragement. Avoid clichés.`);
+    const result = await callAI(`You are a compassionate wellness coach. Here are someone's recent journal entries:\n${summary}\n\nWrite a warm, insightful weekly reflection in ${lang} (4-5 sentences). Notice emotional patterns, celebrate resilience, and offer gentle encouragement. Avoid clichés.`);
     el.innerHTML = result;
   } catch(e) {
     el.innerHTML = handleError(e);
@@ -1312,15 +1225,12 @@ function toggleSettings() {
   const p = document.getElementById('settings-panel');
   p.classList.toggle('open');
   if (p.classList.contains('open')) {
-    document.getElementById('settings-api-key').value = state.apiKey;
     document.getElementById('slang-en').classList.toggle('active', state.lang==='en');
     document.getElementById('slang-he').classList.toggle('active', state.lang==='he');
   }
 }
 
 function saveSettings() {
-  const key = document.getElementById('settings-api-key').value.trim();
-  if (key) { state.apiKey = key; localStorage.setItem('wj_apikey', key); }
   localStorage.setItem('wj_lang', state.lang);
   document.getElementById('settings-panel').classList.remove('open');
   applyLang();
@@ -1362,7 +1272,6 @@ window.completeSetup = completeSetup;
 window.selectMood = selectMood;
 window.getPrompt = getPrompt;
 window.reflectEntry = reflectEntry;
-window.generateArt = generateArt;
 window.saveEntry = saveEntry;
 window.openEntry = openEntry;
 window.closeModal = closeModal;
@@ -1373,7 +1282,7 @@ window.saveSettings = saveSettings;
 window.getWeeklyReflection = getWeeklyReflection;
 
 // Check if already set up
-if (state.apiKey) {
+if (localStorage.getItem('wj_setup_done')) {
   launchApp();
 } else {
   // Pre-select lang on setup screen

@@ -1,4 +1,4 @@
-const CACHE = 'wellness-journal-v1';
+const CACHE = 'wellness-journal-v2';
 const STATIC = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
@@ -16,7 +16,8 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   if (e.request.url.includes('generativelanguage.googleapis.com') ||
       e.request.url.includes('firebaseio.com') ||
-      e.request.url.includes('googleapis.com')) return;
+      e.request.url.includes('googleapis.com') ||
+      e.request.url.includes('workers.dev')) return;
 
   e.respondWith(
     fetch(e.request)
