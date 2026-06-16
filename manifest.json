@@ -1,7 +1,7 @@
 {
   "name": "Wellness Journal | יומן רווחה",
   "short_name": "Wellness",
-  "start_url": "/wellness-journal/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#1a1a2e",
   "theme_color": "#1a1a2e",
