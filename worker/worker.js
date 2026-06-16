@@ -7,9 +7,10 @@
 // which model is behind this.
 
 const ALLOWED_ORIGINS = new Set([
-  'https://gefenrose.github.io', // GitHub Pages PWA
-  'http://localhost',            // local testing
-  'http://127.0.0.1'             // local testing
+  'https://gefenrose.github.io',     // GitHub Pages PWA
+  'https://wellness-journal.pages.dev', // Cloudflare Pages PWA
+  'http://localhost',                // local testing
+  'http://127.0.0.1'                 // local testing
 ]);
 
 const GROQ_MODEL = 'llama-3.3-70b-versatile';
