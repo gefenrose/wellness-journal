@@ -14,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&family=Heebo:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.462.0/dist/umd/lucide.min.js"></script>
 
 <style>
 :root {
@@ -233,7 +234,7 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
   letter-spacing: 0.04em;
   transition: color 0.2s;
 }
-.tab-btn .tab-icon { font-size: 1.3rem; }
+.tab-btn .tab-icon { display: flex; align-items: center; justify-content: center; }
 .tab-btn.active { color: var(--lavender); }
 
 .tab-content { display: none; padding-bottom: 5rem; }
@@ -284,6 +285,9 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
   margin-bottom: 0.5rem;
 }
 .mood-slider-labels span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   font-size: 0.7rem;
   color: var(--text-dim);
   letter-spacing: 0.03em;
@@ -371,7 +375,7 @@ input[type=range].mood-range:focus { outline: none; }
   border-radius: 100px;
   transition: border-color 0.3s;
 }
-.mood-display .mood-emoji { font-size: 1.4rem; line-height: 1; }
+.mood-display .mood-emoji { display: flex; align-items: center; }
 .mood-display .mood-name {
   font-size: 0.9rem;
   font-weight: 500;
@@ -514,7 +518,7 @@ input[type=range].mood-range:focus { outline: none; }
   padding: 3rem 1rem;
   color: var(--text-dim);
 }
-.empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.empty-state .empty-icon { display: flex; justify-content: center; margin-bottom: 0.75rem; opacity: 0.6; }
 .empty-state p { font-size: 0.9rem; line-height: 1.6; }
 
 /* ── INSIGHTS TAB ── */
@@ -542,7 +546,7 @@ input[type=range].mood-range:focus { outline: none; }
   gap: 0.5rem;
   font-size: 0.85rem;
 }
-.mood-bar-row .emoji { width: 24px; text-align: center; }
+.mood-bar-row .emoji { width: 24px; display: flex; align-items: center; justify-content: center; }
 .mood-bar-bg {
   flex: 1;
   height: 6px;
@@ -674,7 +678,7 @@ input[type=range].mood-range:focus { outline: none; }
   <header class="app-header">
     <div class="app-logo" id="app-logo">Wellness <span>Journal</span></div>
     <div class="header-actions">
-      <button class="icon-btn" title="Settings" onclick="toggleSettings()">⚙️</button>
+      <button class="icon-btn" title="Settings" onclick="toggleSettings()"><i data-lucide="settings" width="18" height="18"></i></button>
     </div>
   </header>
 
@@ -702,14 +706,14 @@ input[type=range].mood-range:focus { outline: none; }
         <div class="section-label" id="lbl-mood">How are you feeling?</div>
         <div class="mood-slider-wrap">
           <div class="mood-slider-labels">
-            <span>😣 Suffering</span>
-            <span>😇 Blissful</span>
+            <span>Suffering</span>
+            <span>Blissful</span>
           </div>
           <div class="mood-slider-track">
             <input type="range" class="mood-range" id="mood-slider" min="0" max="14" value="7" oninput="onSliderMove(this.value)" onchange="onSliderCommit(this.value)"/>
           </div>
           <div class="mood-display" id="mood-display">
-            <span class="mood-emoji" id="mood-emoji">😐</span>
+            <span class="mood-emoji" id="mood-emoji"></span>
             <span class="mood-name" id="mood-name">Neutral</span>
           </div>
         </div>
@@ -717,7 +721,7 @@ input[type=range].mood-range:focus { outline: none; }
 
       <!-- AI Prompt -->
       <div class="ai-panel" id="prompt-panel">
-        <div class="ai-panel-header">✨ <span id="lbl-prompt-title">Today's prompt</span></div>
+        <div class="ai-panel-header"><i data-lucide="sparkles" width="14" height="14"></i> <span id="lbl-prompt-title">Today's prompt</span></div>
         <div class="ai-panel-body" id="prompt-body"></div>
       </div>
 
@@ -726,13 +730,13 @@ input[type=range].mood-range:focus { outline: none; }
       </div>
 
       <div class="write-actions">
-        <button class="btn-secondary" id="btn-get-prompt" onclick="getPrompt()">✨ <span id="lbl-get-prompt">Get prompt</span></button>
-        <button class="btn-secondary" id="btn-reflect" onclick="reflectEntry()">🔮 <span id="lbl-reflect">Reflect</span></button>
+        <button class="btn-secondary" id="btn-get-prompt" onclick="getPrompt()"><i data-lucide="sparkles" width="15" height="15"></i> <span id="lbl-get-prompt">Get prompt</span></button>
+        <button class="btn-secondary" id="btn-reflect" onclick="reflectEntry()"><i data-lucide="brain" width="15" height="15"></i> <span id="lbl-reflect">Reflect</span></button>
       </div>
 
       <!-- Reflection panel -->
       <div class="ai-panel" id="reflect-panel">
-        <div class="ai-panel-header">🔮 <span id="lbl-reflect-title">Reflection</span></div>
+        <div class="ai-panel-header"><i data-lucide="brain" width="14" height="14"></i> <span id="lbl-reflect-title">Reflection</span></div>
         <div class="ai-panel-body" id="reflect-body"></div>
       </div>
 
@@ -753,15 +757,15 @@ input[type=range].mood-range:focus { outline: none; }
 
   <nav class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('write',this)" id="tabBtn-write">
-      <span class="tab-icon">✍️</span>
+      <span class="tab-icon"><i data-lucide="pencil-line" width="20" height="20"></i></span>
       <span id="tabl-write">Write</span>
     </button>
     <button class="tab-btn" onclick="switchTab('history',this)" id="tabBtn-history">
-      <span class="tab-icon">📖</span>
+      <span class="tab-icon"><i data-lucide="book-open" width="20" height="20"></i></span>
       <span id="tabl-history">History</span>
     </button>
     <button class="tab-btn" onclick="switchTab('insights',this)" id="tabBtn-insights">
-      <span class="tab-icon">🔮</span>
+      <span class="tab-icon"><i data-lucide="brain" width="20" height="20"></i></span>
       <span id="tabl-insights">Insights</span>
     </button>
   </nav>
@@ -817,22 +821,63 @@ try {
 <script>
 // ── STATE ──
 const MOODS = [
-  { emoji:"😣", label:"Suffering",   labelHe:"סובל",       color:"#6b3a4a", glow:"rgba(107,58,74,0.5)" },
-  { emoji:"😢", label:"Miserable",   labelHe:"אומלל",      color:"#7a4a5e", glow:"rgba(122,74,94,0.45)" },
-  { emoji:"😞", label:"Very Sad",    labelHe:"עצוב מאוד",  color:"#7a6070", glow:"rgba(122,96,112,0.45)" },
-  { emoji:"😔", label:"Sad",         labelHe:"עצוב",       color:"#6a7a9e", glow:"rgba(106,122,158,0.45)" },
-  { emoji:"😕", label:"Low",         labelHe:"נמוך",       color:"#6a8aae", glow:"rgba(106,138,174,0.4)" },
-  { emoji:"😶", label:"Numb",        labelHe:"קהה",        color:"#7a8aaa", glow:"rgba(122,138,170,0.4)" },
-  { emoji:"😐", label:"Neutral",     labelHe:"ניטרלי",     color:"#8a8ab0", glow:"rgba(138,138,176,0.4)" },
-  { emoji:"🙂", label:"Okay",        labelHe:"בסדר",       color:"#8a9ab8", glow:"rgba(138,154,184,0.4)" },
-  { emoji:"😌", label:"Calm",        labelHe:"רגוע",       color:"#7a9eb8", glow:"rgba(122,158,184,0.4)" },
-  { emoji:"😊", label:"Good",        labelHe:"טוב",        color:"#7aaeb0", glow:"rgba(122,174,176,0.4)" },
-  { emoji:"😄", label:"Happy",       labelHe:"שמח",        color:"#7ab8a0", glow:"rgba(122,184,160,0.45)" },
-  { emoji:"😁", label:"Very Happy",  labelHe:"מאוד שמח",   color:"#8fb88a", glow:"rgba(143,184,138,0.45)" },
-  { emoji:"🤩", label:"Excited",     labelHe:"נרגש",       color:"#b8b46a", glow:"rgba(184,180,106,0.45)" },
-  { emoji:"🥰", label:"Joyful",      labelHe:"עליז",       color:"#d4a0c8", glow:"rgba(212,160,200,0.45)" },
-  { emoji:"😇", label:"Blissful",    labelHe:"אושר מלא",   color:"#e8c4d0", glow:"rgba(232,196,208,0.5)" },
+  { label:"Suffering",   labelHe:"סובל",       color:"#6b3a4a", glow:"rgba(107,58,74,0.5)" },
+  { label:"Miserable",   labelHe:"אומלל",      color:"#7a4a5e", glow:"rgba(122,74,94,0.45)" },
+  { label:"Very Sad",    labelHe:"עצוב מאוד",  color:"#7a6070", glow:"rgba(122,96,112,0.45)" },
+  { label:"Sad",         labelHe:"עצוב",       color:"#6a7a9e", glow:"rgba(106,122,158,0.45)" },
+  { label:"Low",         labelHe:"נמוך",       color:"#6a8aae", glow:"rgba(106,138,174,0.4)" },
+  { label:"Numb",        labelHe:"קהה",        color:"#7a8aaa", glow:"rgba(122,138,170,0.4)" },
+  { label:"Neutral",     labelHe:"ניטרלי",     color:"#8a8ab0", glow:"rgba(138,138,176,0.4)" },
+  { label:"Okay",        labelHe:"בסדר",       color:"#8a9ab8", glow:"rgba(138,154,184,0.4)" },
+  { label:"Calm",        labelHe:"רגוע",       color:"#7a9eb8", glow:"rgba(122,158,184,0.4)" },
+  { label:"Good",        labelHe:"טוב",        color:"#7aaeb0", glow:"rgba(122,174,176,0.4)" },
+  { label:"Happy",       labelHe:"שמח",        color:"#7ab8a0", glow:"rgba(122,184,160,0.45)" },
+  { label:"Very Happy",  labelHe:"מאוד שמח",   color:"#8fb88a", glow:"rgba(143,184,138,0.45)" },
+  { label:"Excited",     labelHe:"נרגש",       color:"#b8b46a", glow:"rgba(184,180,106,0.45)" },
+  { label:"Joyful",      labelHe:"עליז",       color:"#d4a0c8", glow:"rgba(212,160,200,0.45)" },
+  { label:"Blissful",    labelHe:"אושר מלא",   color:"#e8c4d0", glow:"rgba(232,196,208,0.5)" },
 ];
+
+// ── MOOD FACE ICONS ──
+// There's no off-the-shelf icon set with 15 graduated facial expressions, so
+// these are generated: a circle face whose eyebrows, eyes, and mouth curve
+// shift smoothly from a pained frown (index 0) through neutral (index 7) to
+// a closed-eyes smile (index 14), styled to match the Lucide icons used
+// elsewhere (thin stroke, rounded caps, currentColor-style coloring).
+function moodFaceSVG(index, color, size = 24) {
+  const valence = (index / 14 - 0.5) * 2; // -1 (Suffering) .. 1 (Blissful)
+  const cx = 12, cy = 12, r = 9;
+
+  const mouthY = 15.5;
+  const mouthHalfW = 3.6 + Math.abs(valence) * 1.2;
+  const ctrlY = mouthY + valence * 6.4;
+  const mouthPath = `M${cx - mouthHalfW} ${mouthY} Q${cx} ${ctrlY} ${cx + mouthHalfW} ${mouthY}`;
+
+  const browDroop = Math.max(0, -valence) * 2.2;
+  const browY = 8.3, browInset = 2.6, browSpan = 2.2;
+  const leftBrow  = `M${cx - browInset - browSpan} ${browY + browDroop} L${cx - browInset} ${browY}`;
+  const rightBrow = `M${cx + browInset} ${browY} L${cx + browInset + browSpan} ${browY + browDroop}`;
+
+  const eyeY = 10.2, eyeOffsetX = 3.6;
+  let eyesSVG;
+  if (index === 0) {
+    // squeezed shut — pained
+    eyesSVG = `<path d="M${cx-eyeOffsetX-1.1} ${eyeY} q1.1 1 2.2 0 M${cx+eyeOffsetX-1.1} ${eyeY} q1.1 1 2.2 0" stroke="${color}" stroke-width="1.4" stroke-linecap="round" fill="none"/>`;
+  } else if (index >= 12) {
+    // closed, upward crescents — joyful
+    eyesSVG = `<path d="M${cx-eyeOffsetX-1.3} ${eyeY+0.5} q1.3 -1.5 2.6 0 M${cx+eyeOffsetX-1.3} ${eyeY+0.5} q1.3 -1.5 2.6 0" stroke="${color}" stroke-width="1.4" stroke-linecap="round" fill="none"/>`;
+  } else {
+    eyesSVG = `<circle cx="${cx-eyeOffsetX}" cy="${eyeY}" r="0.9" fill="${color}"/><circle cx="${cx+eyeOffsetX}" cy="${eyeY}" r="0.9" fill="${color}"/>`;
+  }
+
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block">
+<circle cx="${cx}" cy="${cy}" r="${r}" stroke="${color}" stroke-width="1.6"/>
+<path d="${leftBrow}" stroke="${color}" stroke-width="1.5" stroke-linecap="round"/>
+<path d="${rightBrow}" stroke="${color}" stroke-width="1.5" stroke-linecap="round"/>
+${eyesSVG}
+<path d="${mouthPath}" stroke="${color}" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+</svg>`;
+}
 
 let state = {
   lang: localStorage.getItem('wj_lang') || 'en',
@@ -918,6 +963,7 @@ function launchApp() {
   renderHistory();
   renderInsights();
   loadFromFirebase();
+  lucide.createIcons();
 }
 
 function applyLang() {
@@ -956,8 +1002,8 @@ function updateSliderLabels() {
   const isHe = state.lang === 'he';
   const labels = document.querySelectorAll('.mood-slider-labels span');
   if (labels.length === 2) {
-    labels[0].textContent = `😣 ${isHe ? 'סובל' : 'Suffering'}`;
-    labels[1].textContent = `${isHe ? 'אושר מלא' : 'Blissful'} 😇`;
+    labels[0].innerHTML = `${moodFaceSVG(0, MOODS[0].color, 14)} ${isHe ? 'סובל' : 'Suffering'}`;
+    labels[1].innerHTML = `${isHe ? 'אושר מלא' : 'Blissful'} ${moodFaceSVG(14, MOODS[14].color, 14)}`;
   }
 }
 
@@ -965,7 +1011,7 @@ function onSliderMove(val) {
   const i = parseInt(val);
   const m = MOODS[i];
   // Update display pill
-  document.getElementById('mood-emoji').textContent = m.emoji;
+  document.getElementById('mood-emoji').innerHTML = moodFaceSVG(i, m.color, 22);
   const nameEl = document.getElementById('mood-name');
   nameEl.textContent = state.lang === 'he' ? m.labelHe : m.label;
   nameEl.style.color = m.color;
@@ -1102,7 +1148,8 @@ function saveEntry() {
 function renderHistory() {
   const list = document.getElementById('entry-list');
   if (!state.entries.length) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📖</div><p>${t('emptyHistory')}</p></div>`;
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon"><i data-lucide="book-open" width="40" height="40"></i></div><p>${t('emptyHistory')}</p></div>`;
+    lucide.createIcons();
     return;
   }
   list.innerHTML = state.entries.map((e,i) => {
@@ -1111,7 +1158,7 @@ function renderHistory() {
     return `
       <div class="entry-card" onclick="openEntry(${i})">
         <div class="entry-meta">
-          ${m ? `<div class="entry-mood-dot" style="background:${m.color}"></div><span style="font-size:1rem">${m.emoji}</span>` : ''}
+          ${m ? `<div class="entry-mood-dot" style="background:${m.color}"></div><span style="display:inline-flex">${moodFaceSVG(e.mood, m.color, 16)}</span>` : ''}
           <span class="entry-date">${date}</span>
         </div>
         <div class="entry-preview ${state.lang==='he'?'rtl':''}">${e.text}</div>
@@ -1125,12 +1172,13 @@ function openEntry(i) {
   const m = e.mood !== null && e.mood !== undefined ? MOODS[e.mood] : null;
   const date = new Date(e.timestamp).toLocaleDateString(state.lang==='he'?'he-IL':'en-US', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
   document.getElementById('modal-date').textContent = date;
-  document.getElementById('modal-meta').innerHTML = m ? `${m.emoji} <span style="color:${m.color}">${state.lang==='he'?m.labelHe:m.label}</span>` : '';
+  document.getElementById('modal-meta').innerHTML = m ? `<span style="display:inline-flex">${moodFaceSVG(e.mood, m.color, 18)}</span> <span style="color:${m.color}">${state.lang==='he'?m.labelHe:m.label}</span>` : '';
   let body = `<p>${e.text}</p>`;
-  if (e.reflection) body += `<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.85rem;color:var(--text-dim)"><div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--lavender);margin-bottom:0.5rem">🔮 Reflection</div>${e.reflection}</div>`;
+  if (e.reflection) body += `<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.85rem;color:var(--text-dim)"><div style="display:flex;align-items:center;gap:0.35rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--lavender);margin-bottom:0.5rem"><i data-lucide="brain" width="13" height="13"></i> Reflection</div>${e.reflection}</div>`;
   document.getElementById('modal-body').innerHTML = body;
   document.getElementById('modal-body').classList.toggle('rtl', e.lang==='he');
   document.getElementById('entry-modal').classList.add('open');
+  lucide.createIcons();
 }
 
 function closeModal(e) {
@@ -1144,7 +1192,8 @@ function closeEntryModal() {
 function renderInsights() {
   const grid = document.getElementById('insights-grid');
   if (!state.entries.length) {
-    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">🔮</div><p>${t('emptyHistory')}</p></div>`;
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon"><i data-lucide="brain" width="40" height="40"></i></div><p>${t('emptyHistory')}</p></div>`;
+    lucide.createIcons();
     return;
   }
 
@@ -1158,7 +1207,7 @@ function renderInsights() {
     const count = moodCounts[i] || 0;
     if (!count) return '';
     return `<div class="mood-bar-row">
-      <span class="emoji">${m.emoji}</span>
+      <span class="emoji">${moodFaceSVG(i, m.color, 16)}</span>
       <div class="mood-bar-bg"><div class="mood-bar-fill" style="width:${(count/maxCount)*100}%;background:linear-gradient(90deg,${m.color},${m.color}88)"></div></div>
       <span class="mood-bar-count">${count}</span>
     </div>`;
@@ -1187,9 +1236,10 @@ function renderInsights() {
     <div class="insight-card" id="insight-ai-card">
       <h3>${t('insightAI')}</h3>
       <p id="insight-ai-text" style="color:var(--text-dim);font-size:0.85rem">Tap to generate weekly reflection</p>
-      <button class="btn-secondary" style="margin-top:0.75rem;width:100%" onclick="getWeeklyReflection()">✨ Generate</button>
+      <button class="btn-secondary" style="margin-top:0.75rem;width:100%" onclick="getWeeklyReflection()"><i data-lucide="sparkles" width="15" height="15"></i> Generate</button>
     </div>
   `;
+  lucide.createIcons();
 }
 
 async function getWeeklyReflection() {
