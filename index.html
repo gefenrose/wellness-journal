@@ -829,6 +829,55 @@ input[type=range].mood-range:focus { outline: none; }
   .mood-orb, .setup-orb { animation: none; }
 }
 
+/* ── LIGHT MODE ── */
+body.light {
+  --indigo: #f2eff9;
+  --indigo-mid: #e8e4f4;
+  --indigo-light: #ddd8ee;
+  --lavender: #6b5b9e;
+  --lavender-dim: #9080b8;
+  --blush: #b86878;
+  --sage: #4d7a70;
+  --moon: #1c1630;
+  --moon-dim: #3a3060;
+  --text: #1c1630;
+  --text-dim: #706890;
+  --card: rgba(255,255,255,0.65);
+  --card-hover: rgba(255,255,255,0.88);
+  --border: rgba(90,70,150,0.12);
+}
+
+/* Hardcoded rgba values that don't use variables */
+body.light .app-header  { background: rgba(242,239,249,0.92); }
+body.light .tab-bar     { background: rgba(242,239,249,0.96); }
+body.light .panic-overlay { background: #f5f2fd; }
+body.light .toast       { background: var(--indigo-light); }
+
+body.light .ai-panel {
+  background: linear-gradient(135deg, rgba(107,91,158,0.07), rgba(184,104,120,0.05));
+  border-color: rgba(107,91,158,0.18);
+}
+body.light .chat-bubble.ai {
+  background: rgba(107,91,158,0.09);
+  border-color: rgba(107,91,158,0.18);
+}
+body.light .chat-bubble.user {
+  background: rgba(107,91,158,0.16);
+  border-color: rgba(107,91,158,0.24);
+}
+body.light .chat-bubble.typing {
+  background: rgba(107,91,158,0.06);
+  border-color: rgba(107,91,158,0.12);
+}
+
+@media (min-width: 720px) {
+  body.light {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(107,91,158,0.06), transparent 60%),
+      #e8e4f4;
+  }
+}
+
 /* ── PANIC BUTTON ── */
 .panic-fab {
   position: fixed;
@@ -1056,6 +1105,8 @@ input[type=range].mood-range:focus { outline: none; }
 </style>
 </head>
 <body>
+<!-- Apply saved/system theme before any paint to avoid flash -->
+<script>(function(){var s=localStorage.getItem('wj_theme');if(s==='light'||(!s&&matchMedia('(prefers-color-scheme:light)').matches))document.body.classList.add('light')})();</script>
 
 <!-- AUTH SCREEN -->
 <div id="auth-screen">
@@ -1123,6 +1174,7 @@ input[type=range].mood-range:focus { outline: none; }
           </button>
         </div>
       </div>
+      <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme"></button>
       <button class="icon-btn" title="Settings" onclick="toggleSettings()"><i data-lucide="settings" width="18" height="18"></i></button>
     </div>
   </header>
@@ -1755,6 +1807,7 @@ function launchApp() {
   renderHistory();
   renderInsights();
   updateUserUI();
+  initTheme();
   lucide.createIcons();
 }
 
@@ -1808,8 +1861,8 @@ function onSliderMove(val) {
   const display = document.getElementById('mood-display');
   display.style.borderColor = m.color + '88';
   const orb = document.getElementById('mood-orb');
-  orb.style.background = `radial-gradient(circle at 35% 35%, ${m.color}, #2f2f5a)`;
-  orb.style.boxShadow = `0 0 40px ${m.glow}`;
+  orb.style.setProperty('--orb-color', m.color);
+  orb.style.setProperty('--orb-glow', m.glow);
   const slider = document.getElementById('mood-slider');
   slider.style.setProperty('--thumb-color', m.color);
   slider.style.setProperty('--thumb-glow', m.glow);
@@ -1903,8 +1956,8 @@ function saveEntry() {
   state.selectedMood = null;
   document.querySelectorAll('.mood-chip').forEach(c => c.classList.remove('selected'));
   const orb = document.getElementById('mood-orb');
-  orb.style.background = '';
-  orb.style.boxShadow = '';
+  orb.style.removeProperty('--orb-color');
+  orb.style.removeProperty('--orb-glow');
   ['prompt-panel','reflect-panel'].forEach(id => {
     document.getElementById(id).classList.remove('visible');
   });
@@ -2182,6 +2235,35 @@ function showQuickReplies(options) {
   ).join('');
 }
 
+// ── THEME ──
+function initTheme() {
+  const saved = localStorage.getItem('wj_theme');
+  const isLight = saved === 'light' || (!saved && matchMedia('(prefers-color-scheme:light)').matches);
+  applyTheme(isLight ? 'light' : 'dark', false);
+  // Track system preference changes when no manual override is saved
+  matchMedia('(prefers-color-scheme:light)').addEventListener('change', e => {
+    if (!localStorage.getItem('wj_theme')) applyTheme(e.matches ? 'light' : 'dark', false);
+  });
+}
+
+function applyTheme(theme, save = true) {
+  document.body.classList.toggle('light', theme === 'light');
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = theme === 'light' ? '#e8e4f4' : '#1a1a2e';
+  if (save) localStorage.setItem('wj_theme', theme);
+  const btn = document.getElementById('theme-btn');
+  if (btn) {
+    btn.innerHTML = theme === 'light'
+      ? '<i data-lucide="moon" width="18" height="18"></i>'
+      : '<i data-lucide="sun" width="18" height="18"></i>';
+    lucide.createIcons();
+  }
+}
+
+function toggleTheme() {
+  applyTheme(document.body.classList.contains('light') ? 'dark' : 'light');
+}
+
 // ── GLOBAL EXPORTS ──
 window.onSliderMove = onSliderMove;
 window.onSliderCommit = onSliderCommit;
@@ -2205,6 +2287,7 @@ window.getWeeklyReflection = getWeeklyReflection;
 window.openPanic = openPanic;
 window.closePanic = closePanic;
 window.sendPanicMessage = sendPanicMessage;
+window.toggleTheme = toggleTheme;
 
 // ── INIT ──
 (function init() {
