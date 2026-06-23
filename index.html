@@ -1139,28 +1139,8 @@ body.light .chat-bubble.typing {
 <!-- Apply saved/system theme before any paint to avoid flash -->
 <script>(function(){var s=localStorage.getItem('wj_theme');if(s==='light'||(!s&&matchMedia('(prefers-color-scheme:light)').matches))document.body.classList.add('light')})();</script>
 
-<!-- AUTH SCREEN -->
-<div id="auth-screen">
-  <div class="setup-orb"></div>
-  <div>
-    <div class="setup-title">Wellness <span>Journal</span><br/>יומן <span>רווחה</span></div>
-  </div>
-  <p class="setup-sub">Your private space to reflect, feel, and grow — powered by AI.</p>
-  <div class="setup-card">
-    <button class="google-btn" id="google-signin-btn" onclick="startGoogleSignIn()">
-      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-        <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/>
-        <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/>
-        <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/>
-        <path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/>
-      </svg>
-      <span id="lbl-google-signin">Sign in with Google</span>
-    </button>
-    <div class="auth-divider"><span id="lbl-auth-or">or</span></div>
-    <button class="guest-link" id="lbl-continue-guest" onclick="continueAsGuest()">Continue as guest</button>
-    <p class="auth-notice" id="auth-notice">Your journal is saved privately to your Google Drive — no one else can access it.</p>
-  </div>
-</div>
+<!-- AUTH SCREEN (unused — kept so .remove('visible') calls don't crash) -->
+<div id="auth-screen"></div>
 
 <!-- LANG SCREEN (first thing ever shown) -->
 <div id="lang-screen">
@@ -1175,21 +1155,36 @@ body.light .chat-bubble.typing {
   </div>
 </div>
 
-<!-- PROFILE SCREEN (after auth, new users only) -->
+<!-- PROFILE SCREEN (name + gender + auth — shown after lang pick) -->
 <div id="profile-screen">
   <div class="setup-orb"></div>
-  <div class="setup-title" id="profile-welcome">Welcome!</div>
-  <p class="setup-sub" id="profile-sub">Let's personalise your experience.</p>
+  <div class="setup-title">Wellness <span>Journal</span><br/>יומן <span>רווחה</span></div>
+  <p class="setup-sub" id="profile-sub">Your private space to reflect, feel, and grow — powered by AI.</p>
   <div class="setup-card">
     <div>
-      <label id="lbl-gender-profile">How should I address you?</label>
+      <label id="lbl-name-profile">Your name</label>
+      <input type="text" id="profile-name" placeholder="How should I call you?" autocomplete="given-name" style="margin-top:0.4rem"/>
+    </div>
+    <div>
+      <label id="lbl-gender-profile">Pronouns</label>
       <div class="gender-toggle" style="margin-top:0.5rem">
         <button class="gender-btn" data-gender="m" id="pgender-m" onclick="setGender('m')">He / Him</button>
         <button class="gender-btn" data-gender="f" id="pgender-f" onclick="setGender('f')">She / Her</button>
-        <button class="gender-btn active" data-gender="n" id="pgender-n" onclick="setGender('n')" >They / Them</button>
+        <button class="gender-btn active" data-gender="n" id="pgender-n" onclick="setGender('n')">They / Them</button>
       </div>
     </div>
-    <button class="btn-primary" id="begin-btn" onclick="beginJournaling()">Begin journaling →</button>
+    <button class="google-btn" id="profile-google-btn" onclick="startGoogleSignIn()">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+        <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/>
+        <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/>
+        <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/>
+        <path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/>
+      </svg>
+      <span id="lbl-profile-google">Sign in with Google</span>
+    </button>
+    <div class="auth-divider"><span id="lbl-profile-or">or</span></div>
+    <button class="guest-link" id="profile-guest-btn" onclick="continueAsGuest()"><span id="lbl-profile-guest">Continue as guest</span></button>
+    <p class="auth-notice" id="profile-notice">Your journal is saved privately to your Google Drive — no one else can access it.</p>
   </div>
 </div>
 
@@ -1233,6 +1228,10 @@ body.light .chat-bubble.typing {
             <button class="lang-btn" id="slang-en" onclick="setLang('en')">English</button>
             <button class="lang-btn" id="slang-he" onclick="setLang('he')">עברית</button>
           </div>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label" id="lbl-settings-name">Your name</span>
+          <input type="text" id="settings-name" style="margin-top:0.4rem" autocomplete="given-name"/>
         </div>
         <div class="settings-row">
           <span class="settings-label" id="lbl-settings-gender">Pronouns</span>
@@ -1444,6 +1443,7 @@ let state = {
   driveFileId: null,  // Drive file ID once created/found
   guestMode: false,
   gender: localStorage.getItem('wj_gender') || 'n',
+  name: localStorage.getItem('wj_name') || '',
 };
 
 let tokenClient = null;
@@ -1498,13 +1498,15 @@ const T = {
     panicQR1: ["I'm panicking", "Can't breathe", "Racing thoughts", "I feel overwhelmed"],
     panicQR2: ["Keep going", "Try something else", "That helped a little", "I'm still struggling"],
     langContinue: 'Continue →',
-    profileWelcome: 'Welcome!',
-    profileSub: "Let's personalise your experience.",
-    genderLabel: 'How should I address you?',
+    profileSub: 'Your private space to reflect, feel, and grow — powered by AI.',
+    nameLabel: 'Your name',
+    namePlaceholder: 'How should I call you?',
+    genderLabel: 'Pronouns',
     genderM: 'He / Him',
     genderF: 'She / Her',
     genderN: 'They / Them',
     settingsGender: 'Pronouns',
+    settingsName: 'Your name',
     settingsSignedInAs: 'Signed in as',
     settingsGuestMode: 'Guest mode',
     settingsSignIn: 'Sign in with Google',
@@ -1557,13 +1559,15 @@ const T = {
     panicQR1: ["אני בפאניקה", "לא מצליח לנשום", "המחשבות לא עוצרות", "אני מרגיש מוצף"],
     panicQR2: ["המשך", "נסה משהו אחר", "זה עזר קצת", "עדיין מתקשה"],
     langContinue: '→ המשך',
-    profileWelcome: '!ברוכים הבאים',
-    profileSub: 'בואו נתאים את החוויה עבורך.',
-    genderLabel: 'כיצד לפנות אליך?',
+    profileSub: 'המקום הפרטי שלך להרגיש, להשתקף ולצמוח — עם עזרת AI.',
+    nameLabel: 'השם שלך',
+    namePlaceholder: 'איך לקרוא לך?',
+    genderLabel: 'כינוי גוף',
     genderM: 'הוא / שלו',
     genderF: 'היא / שלה',
     genderN: 'הם / שלהם',
     settingsGender: 'כינוי גוף',
+    settingsName: 'השם שלך',
     settingsSignedInAs: 'מחובר בתור',
     settingsGuestMode: 'מצב אורח',
     settingsSignIn: 'כניסה עם Google',
@@ -1577,11 +1581,10 @@ function t(key) { return T[state.lang][key] || key; }
 function initGoogleAuth() {
   if (!window.google?.accounts?.oauth2) return;
   if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com') {
-    // No client ID configured — hide Google sign-in button
-    const btn = document.getElementById('google-signin-btn');
+    const btn = document.getElementById('profile-google-btn');
     if (btn) btn.style.display = 'none';
-    const notice = document.getElementById('auth-notice');
-    if (notice) notice.textContent = 'Guest mode: your journal is saved on this device only.';
+    const notice = document.getElementById('profile-notice');
+    if (notice) notice.textContent = t('authNoticeGuest');
     return;
   }
   tokenClient = google.accounts.oauth2.initTokenClient({
@@ -1642,7 +1645,12 @@ async function handleDriveToken(response) {
   if (localStorage.getItem('wj_setup_done')) {
     launchApp();
   } else {
-    showProfileScreen();
+    // Pre-fill name from Google if the user left it blank
+    const nameInput = document.getElementById('profile-name');
+    if (nameInput && !nameInput.value.trim() && state.user?.name) {
+      nameInput.value = state.user.name;
+    }
+    beginJournaling();
   }
 }
 
@@ -1650,11 +1658,7 @@ function continueAsGuest() {
   state.guestMode = true;
   localStorage.setItem('wj_guest', '1');
   state.entries = JSON.parse(localStorage.getItem('wj_entries') || '[]');
-  if (localStorage.getItem('wj_setup_done')) {
-    launchApp();
-  } else {
-    showProfileScreen();
-  }
+  beginJournaling();
 }
 
 function signOut() {
@@ -1677,8 +1681,9 @@ function signOut() {
 
   // Clear state
   state.gender = 'n';
+  state.name = '';
   // Clear storage
-  ['wj_user','wj_entries','wj_setup_done','wj_guest','wj_lang','wj_gender','wj_lang_chosen'].forEach(k => localStorage.removeItem(k));
+  ['wj_user','wj_entries','wj_setup_done','wj_guest','wj_lang','wj_gender','wj_name','wj_lang_chosen'].forEach(k => localStorage.removeItem(k));
 
   // Return to auth screen
   document.getElementById('app').classList.remove('visible');
@@ -1715,6 +1720,10 @@ async function loadFromDrive() {
         state.gender = data.gender;
         localStorage.setItem('wj_gender', data.gender);
       }
+      if (data.name !== undefined) {
+        state.name = data.name;
+        localStorage.setItem('wj_name', data.name);
+      }
       // Mark as returning user so we skip setup
       localStorage.setItem('wj_setup_done', '1');
     }
@@ -1732,6 +1741,7 @@ async function saveToDrive() {
     version: 1,
     lang: state.lang,
     gender: state.gender,
+    name: state.name,
     entries: state.entries,
     savedAt: new Date().toISOString()
   };
@@ -1852,20 +1862,19 @@ function setLang(lang) {
   // Lang screen
   const langContinueBtn = document.getElementById('lang-continue-btn');
   if (langContinueBtn) langContinueBtn.textContent = t('langContinue');
-  // Auth screen
-  document.getElementById('lbl-google-signin') && (document.getElementById('lbl-google-signin').textContent = t('signInWithGoogle'));
-  document.getElementById('lbl-auth-or') && (document.getElementById('lbl-auth-or').textContent = t('authOr'));
-  document.getElementById('lbl-continue-guest') && (document.getElementById('lbl-continue-guest').textContent = t('continueAsGuest'));
-  document.getElementById('auth-notice') && (document.getElementById('auth-notice').textContent = t('authNotice'));
-  // Profile screen
-  document.getElementById('profile-welcome') && (document.getElementById('profile-welcome').textContent = t('profileWelcome'));
+  // Profile screen (combined auth + setup)
   document.getElementById('profile-sub') && (document.getElementById('profile-sub').textContent = t('profileSub'));
+  document.getElementById('lbl-name-profile') && (document.getElementById('lbl-name-profile').textContent = t('nameLabel'));
+  if (document.getElementById('profile-name')) document.getElementById('profile-name').placeholder = t('namePlaceholder');
   document.getElementById('lbl-gender-profile') && (document.getElementById('lbl-gender-profile').textContent = t('genderLabel'));
   if (document.getElementById('pgender-m')) document.getElementById('pgender-m').textContent = t('genderM');
   if (document.getElementById('pgender-f')) document.getElementById('pgender-f').textContent = t('genderF');
   if (document.getElementById('pgender-n')) document.getElementById('pgender-n').textContent = t('genderN');
-  document.getElementById('begin-btn') && (document.getElementById('begin-btn').textContent = t('beginJournaling'));
-  // Settings gender label
+  document.getElementById('lbl-profile-google') && (document.getElementById('lbl-profile-google').textContent = t('signInWithGoogle'));
+  document.getElementById('lbl-profile-or') && (document.getElementById('lbl-profile-or').textContent = t('authOr'));
+  document.getElementById('lbl-profile-guest') && (document.getElementById('lbl-profile-guest').textContent = t('continueAsGuest'));
+  document.getElementById('profile-notice') && (document.getElementById('profile-notice').textContent = t('authNotice'));
+  // Settings panel labels
   document.getElementById('lbl-settings-gender') && (document.getElementById('lbl-settings-gender').textContent = t('settingsGender'));
   if (document.getElementById('sgender-m')) document.getElementById('sgender-m').textContent = t('genderM');
   if (document.getElementById('sgender-f')) document.getElementById('sgender-f').textContent = t('genderF');
@@ -1886,15 +1895,20 @@ function setGender(g) {
 
 function genderInstruction() {
   const g = state.gender;
+  const name = state.name;
   const isHe = state.lang === 'he';
+  const parts = [];
+  if (name) parts.push(isHe ? `שם המשתמש הוא ${name}. פנה אליו/ה בשמו/ה.` : `The user's name is ${name}. Address them by name.`);
   if (isHe) {
-    if (g === 'm') return 'פנה אל המשתמש בלשון זכר.';
-    if (g === 'f') return 'פנה אל המשתמש בלשון נקבה.';
-    return 'פנה אל המשתמש בלשון ניטרלית / רבים.';
+    if (g === 'm') parts.push('פנה בלשון זכר.');
+    else if (g === 'f') parts.push('פנה בלשון נקבה.');
+    else parts.push('פנה בלשון ניטרלית / רבים.');
+  } else {
+    if (g === 'm') parts.push('Use he/him pronouns.');
+    else if (g === 'f') parts.push('Use she/her pronouns.');
+    else parts.push('Use they/them (gender-neutral) pronouns.');
   }
-  if (g === 'm') return 'Address the user using he/him pronouns.';
-  if (g === 'f') return 'Address the user using she/her pronouns.';
-  return 'Address the user using they/them (gender-neutral) pronouns.';
+  return parts.join(' ');
 }
 
 function showLangScreen() {
@@ -1906,11 +1920,8 @@ function showLangScreen() {
 }
 
 function showAuthScreen() {
-  document.getElementById('lang-screen').classList.remove('visible');
-  document.getElementById('auth-screen').classList.add('visible');
-  document.getElementById('profile-screen').classList.remove('visible');
-  document.getElementById('app').classList.remove('visible');
-  setLang(state.lang);
+  // Auth is now part of the profile screen
+  showProfileScreen();
 }
 
 function showProfileScreen() {
@@ -1918,7 +1929,9 @@ function showProfileScreen() {
   document.getElementById('auth-screen').classList.remove('visible');
   document.getElementById('profile-screen').classList.add('visible');
   document.getElementById('app').classList.remove('visible');
-  // Pre-select saved gender
+  // Pre-fill name if already known
+  const nameInput = document.getElementById('profile-name');
+  if (nameInput && state.name) nameInput.value = state.name;
   setGender(state.gender);
   setLang(state.lang);
 }
@@ -1926,10 +1939,13 @@ function showProfileScreen() {
 function completeLangScreen() {
   localStorage.setItem('wj_lang', state.lang);
   localStorage.setItem('wj_lang_chosen', '1');
-  showAuthScreen();
+  showProfileScreen();
 }
 
 function beginJournaling() {
+  const nameInput = document.getElementById('profile-name');
+  if (nameInput) state.name = nameInput.value.trim();
+  localStorage.setItem('wj_name', state.name);
   localStorage.setItem('wj_gender', state.gender);
   localStorage.setItem('wj_setup_done', '1');
   launchApp();
@@ -1975,6 +1991,16 @@ function launchApp() {
   lucide.createIcons();
 }
 
+function getMoodLabel() {
+  const name = state.name;
+  if (state.lang === 'he') {
+    const verb = state.gender === 'f' ? 'מרגישה' : state.gender === 'm' ? 'מרגיש' : 'מרגישים';
+    const pron = state.gender === 'f' ? 'את' : state.gender === 'm' ? 'אתה' : 'אתם';
+    return name ? `${name}, איך ${pron} ${verb}?` : `איך ${pron} ${verb}?`;
+  }
+  return name ? `How are you feeling, ${name}?` : 'How are you feeling?';
+}
+
 function applyLang() {
   const isHe = state.lang === 'he';
   document.body.classList.toggle('rtl', isHe);
@@ -1983,7 +2009,7 @@ function applyLang() {
   const logo = document.getElementById('app-logo');
   if(logo) logo.innerHTML = t('logo');
 
-  document.getElementById('lbl-mood').textContent = t('mood');
+  document.getElementById('lbl-mood').textContent = getMoodLabel();
   document.getElementById('lbl-get-prompt').textContent = t('getPrompt');
   document.getElementById('lbl-reflect').textContent = t('reflect');
   document.getElementById('btn-save').textContent = t('save');
@@ -1992,6 +2018,8 @@ function applyLang() {
   document.getElementById('lbl-reflect-title').textContent = t('reflectTitle');
   document.getElementById('lbl-lang').textContent = t('lang');
   document.getElementById('btn-save-settings').textContent = t('saveSettings');
+  document.getElementById('lbl-settings-name') && (document.getElementById('lbl-settings-name').textContent = t('settingsName'));
+  if (document.getElementById('settings-name')) document.getElementById('settings-name').placeholder = t('namePlaceholder');
   document.getElementById('lbl-settings-gender') && (document.getElementById('lbl-settings-gender').textContent = t('settingsGender'));
   if (document.getElementById('sgender-m')) document.getElementById('sgender-m').textContent = t('genderM');
   if (document.getElementById('sgender-f')) document.getElementById('sgender-f').textContent = t('genderF');
@@ -2260,12 +2288,19 @@ function toggleSettings() {
   if (p.classList.contains('open')) {
     document.getElementById('slang-en').classList.toggle('active', state.lang==='en');
     document.getElementById('slang-he').classList.toggle('active', state.lang==='he');
+    const nameField = document.getElementById('settings-name');
+    if (nameField) nameField.value = state.name;
     updateGenderBtns();
     updateSettingsAccount();
   }
 }
 
 function saveSettings() {
+  const nameField = document.getElementById('settings-name');
+  if (nameField) {
+    state.name = nameField.value.trim();
+    localStorage.setItem('wj_name', state.name);
+  }
   localStorage.setItem('wj_lang', state.lang);
   localStorage.setItem('wj_gender', state.gender);
   document.getElementById('settings-panel').classList.remove('open');
@@ -2470,11 +2505,13 @@ window.toggleTheme = toggleTheme;
   const setupDone = localStorage.getItem('wj_setup_done');
   const langChosen = localStorage.getItem('wj_lang_chosen');
 
-  // Restore lang & gender from storage
+  // Restore lang, gender, name from storage
   const savedLang = localStorage.getItem('wj_lang');
   if (savedLang) state.lang = savedLang;
   const savedGender = localStorage.getItem('wj_gender');
   if (savedGender) state.gender = savedGender;
+  const savedName = localStorage.getItem('wj_name');
+  if (savedName) state.name = savedName;
 
   if (isGuest) {
     state.guestMode = true;
