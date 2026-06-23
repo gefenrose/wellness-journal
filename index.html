@@ -1661,7 +1661,7 @@ const T = {
   he: {
     logo: 'יומן <span>רווחה</span>',
     mood: 'איך אתה מרגיש?',
-    getPrompt: 'קבל הנחיה',
+    getPrompt: { m: 'קבל הנחיה', f: 'קבלי הנחיה', n: 'קבלו הנחיה' },
     reflect: 'השתקפות',
     save: 'שמור רשומה',
     historyTitle: 'רשומות קודמות',
@@ -1675,18 +1675,18 @@ const T = {
     signOut: 'התנתקות',
     toastSettingsSaved: '✓ ההגדרות נשמרו',
     toastSaved: '✓ רשומה נשמרה',
-    toastNeedText: 'כתוב משהו תחילה',
+    toastNeedText: { m: 'כתוב משהו תחילה', f: 'כתבי משהו תחילה', n: 'כתבו משהו תחילה' },
     toastError: 'משהו השתבש. נסה שוב.',
     toastSignedOut: 'התנתקת',
     toastDriveSaved: '✓ נשמר ל-Drive',
     toastDriveError: 'סנכרון Drive נכשל — נשמר מקומית',
-    emptyHistory: 'אין רשומות עדיין.\nהתחל לכתוב כדי לראות את ההיסטוריה שלך כאן.',
+    emptyHistory: { m: 'אין רשומות עדיין.\nהתחל לכתוב כדי לראות את ההיסטוריה שלך כאן.', f: 'אין רשומות עדיין.\nהתחילי לכתוב כדי לראות את ההיסטוריה שלך כאן.', n: 'אין רשומות עדיין.\nהתחילו לכתוב כדי לראות את ההיסטוריה שלכם כאן.' },
     insightMoods: 'תדירות מצבי רוח',
     insightStreak: 'רצף יומן',
     insightAI: 'השתקפות AI על השבוע שלך',
     insightAITap: 'הקש כדי ליצור השתקפות שבועית',
     streakDays: d => `${d} יום${d===1?'':'ים'} ברצף`,
-    placeholder: 'כתוב מה עובר עליך...',
+    placeholder: { m: 'כתוב מה עובר עליך...', f: 'כתבי מה עובר עליך...', n: 'כתבו מה שעובר עליכם...' },
     modalClose: '✕',
     syncSaving: 'שומר…',
     syncSaved: 'נשמר',
@@ -1696,14 +1696,26 @@ const T = {
     authNotice: 'היומן שלך נשמר בפרטיות ב-Google Drive שלך — אף אחד אחר לא יכול לגשת אליו.',
     authNoticeGuest: 'מצב אורח: היומן שלך נשמר במכשיר זה בלבד.',
     setupSub: 'המקום הפרטי שלך להרגיש, להשתקף ולצמוח — עם עזרת AI.',
-    beginJournaling: '→ התחל לכתוב',
-    panicTitle: 'אתה בטוח. אני כאן.',
+    beginJournaling: { m: '→ התחל לכתוב', f: '→ התחילי לכתוב', n: '→ התחילו לכתוב' },
+    panicTitle: { m: 'אתה בטוח. אני כאן.', f: 'את בטוחה. אני כאן.', n: 'אתם בטוחים. אני כאן.' },
     panicSub: 'נעבור את זה ביחד',
-    panicClose: 'אני מרגיש טוב יותר',
-    panicInputPlaceholder: 'כתוב איך אתה מרגיש…',
-    panicOpening: 'אני ממש כאן איתך. 💙\n\nאתה בטוח ברגע הזה, גם אם זה לא מרגיש ככה. קח איתי נשימה אחת איטית — שאף… ונשוף.\n\nמה קורה לך עכשיו?',
-    panicQR1: ["אני בפאניקה", "לא מצליח לנשום", "המחשבות לא עוצרות", "אני מרגיש מוצף"],
-    panicQR2: ["המשך", "נסה משהו אחר", "זה עזר קצת", "עדיין מתקשה"],
+    panicClose: { m: 'אני מרגיש טוב יותר', f: 'אני מרגישה טוב יותר', n: 'אנחנו מרגישים טוב יותר' },
+    panicInputPlaceholder: { m: 'כתוב איך אתה מרגיש…', f: 'כתבי איך את מרגישה…', n: 'כתבו איך אתם מרגישים…' },
+    panicOpening: {
+      m: 'אני ממש כאן איתך. 💙\n\nאתה בטוח ברגע הזה, גם אם זה לא מרגיש ככה. קח איתי נשימה אחת איטית — שאף… ונשוף.\n\nמה קורה לך עכשיו?',
+      f: 'אני ממש כאן איתך. 💙\n\nאת בטוחה ברגע הזה, גם אם זה לא מרגיש ככה. קחי איתי נשימה אחת איטית — שאפי… ונשפי.\n\nמה קורה לך עכשיו?',
+      n: 'אני ממש כאן איתכם. 💙\n\nאתם בטוחים ברגע הזה, גם אם זה לא מרגיש ככה. קחו איתי נשימה אחת איטית — שאפו… ונשפו.\n\nמה קורה לכם עכשיו?',
+    },
+    panicQR1: {
+      m: ["אני בפאניקה", "לא מצליח לנשום", "המחשבות לא עוצרות", "אני מרגיש מוצף"],
+      f: ["אני בפאניקה", "לא מצליחה לנשום", "המחשבות לא עוצרות", "אני מרגישה מוצפת"],
+      n: ["אנחנו בפאניקה", "לא מצליחים לנשום", "המחשבות לא עוצרות", "אנחנו מרגישים מוצפים"],
+    },
+    panicQR2: {
+      m: ["המשך", "נסה משהו אחר", "זה עזר קצת", "עדיין מתקשה"],
+      f: ["המשיכי", "נסי משהו אחר", "זה עזר קצת", "עדיין מתקשה"],
+      n: ["המשיכו", "נסו משהו אחר", "זה עזר קצת", "עדיין מתקשים"],
+    },
     langContinue: '→ המשך',
     profileSub: 'המקום הפרטי שלך להרגיש, להשתקף ולצמוח — עם עזרת AI.',
     nameLabel: 'השם שלך',
@@ -1721,7 +1733,14 @@ const T = {
   }
 };
 
-function t(key) { return T[state.lang][key] || key; }
+function t(key) {
+  const val = T[state.lang][key];
+  if (val === undefined) return key;
+  if (val && typeof val === 'object' && !Array.isArray(val) && typeof val !== 'function') {
+    return val[state.gender] ?? val.m ?? key;
+  }
+  return val;
+}
 
 // ── GOOGLE AUTH ──
 function initGoogleAuth() {
@@ -2029,14 +2048,17 @@ function setLang(lang) {
 
 function setGender(g) {
   state.gender = g;
-  // Update profile screen buttons
   document.querySelectorAll('#profile-screen .gender-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.gender === g);
   });
-  // Update settings panel buttons
   document.querySelectorAll('#settings-panel .gender-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.gender === g);
   });
+  if (document.getElementById('lbl-get-prompt')) {
+    applyLang();
+    const slider = document.getElementById('mood-slider');
+    if (slider) onSliderMove(slider.value);
+  }
 }
 
 function genderInstruction() {
@@ -2507,7 +2529,8 @@ function openPanic() {
   const opening = t('panicOpening');
   appendBubble('ai', opening);
   panicHistory.push({ role: 'assistant', content: opening });
-  showQuickReplies(T[state.lang].panicQR1);
+  const qr1 = T[state.lang].panicQR1;
+  showQuickReplies(Array.isArray(qr1) ? qr1 : (qr1[state.gender] || qr1.m));
 }
 
 function closePanic() {
@@ -2550,7 +2573,8 @@ async function sendPanicMessage(text) {
     appendBubble('ai', reply);
     panicHistory.push({ role: 'assistant', content: reply });
 
-    const qrSet = panicPhase === 'calmer' ? T[state.lang].panicQR2 : T[state.lang].panicQR2;
+    const qr2 = T[state.lang].panicQR2;
+    const qrSet = Array.isArray(qr2) ? qr2 : (qr2[state.gender] || qr2.m);
     showQuickReplies(qrSet);
   } catch(e) {
     document.getElementById(typingId)?.remove();
