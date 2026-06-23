@@ -1747,6 +1747,8 @@ function t(key) {
 }
 
 // ── GOOGLE AUTH ──
+let _signInUserInitiated = false;
+
 function initGoogleAuth() {
   if (!window.google?.accounts?.oauth2) return;
   if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com') {
@@ -1762,7 +1764,8 @@ function initGoogleAuth() {
     callback: handleDriveToken,
     error_callback: (err) => {
       console.warn('Auth error:', err);
-      showToast('Sign-in failed. Try again.');
+      if (_signInUserInitiated) showToast('Sign-in failed. Try again.');
+      _signInUserInitiated = false;
     }
   });
 
@@ -1783,16 +1786,19 @@ function startGoogleSignIn() {
     showToast('Google Sign-In not available');
     return;
   }
+  _signInUserInitiated = true;
   tokenClient.requestAccessToken({ prompt: 'select_account' });
 }
 
 async function handleDriveToken(response) {
   if (response.error) {
     console.warn('Token error:', response.error);
-    showToast('Sign-in failed. Try again.');
+    if (_signInUserInitiated) showToast('Sign-in failed. Try again.');
+    _signInUserInitiated = false;
     return;
   }
 
+  _signInUserInitiated = false;
   state.accessToken = response.access_token;
 
   // Fetch user info
