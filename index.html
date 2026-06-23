@@ -20,7 +20,21 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <style>
+/* Houdini custom properties — enables smooth gradient transitions */
+@property --sky-top  { syntax: '<color>'; inherits: true; initial-value: #2E3A78; }
+@property --sky-bot  { syntax: '<color>'; inherits: true; initial-value: #5B6B8C; }
+@property --sun-a    { syntax: '<color>'; inherits: true; initial-value: rgba(228,234,255,0.82); }
+@property --sun-b    { syntax: '<color>'; inherits: true; initial-value: #5B6B8C; }
+@property --sun-glow { syntax: '<color>'; inherits: true; initial-value: rgba(110,122,185,0.42); }
+
 :root {
+  /* ── Horizon palette (from Ofek) ── */
+  --h-low:  #2E3148;
+  --h-mid1: #5B6B8C;
+  --h-mid2: #8FB8C9;
+  --h-high: #F4C77B;
+
+  /* ── Structural ── */
   --indigo: #1a1a2e;
   --indigo-mid: #252545;
   --indigo-light: #2f2f5a;
@@ -30,11 +44,16 @@
   --sage: #8fb3a8;
   --moon: #f0edf7;
   --moon-dim: #c5bfd8;
+
+  /* ── Dynamic (overridden by applySky) ── */
   --text: #f0edf7;
   --text-dim: #9b94b3;
-  --card: rgba(255,255,255,0.06);
-  --card-hover: rgba(255,255,255,0.1);
-  --border: rgba(255,255,255,0.1);
+  --card: rgba(255,255,255,0.08);
+  --card-hover: rgba(255,255,255,0.14);
+  --border: rgba(255,255,255,0.10);
+  --header-bg: rgba(46,58,120,0.92);
+  --tab-bg: rgba(46,58,120,0.95);
+
   --radius: 18px;
   --radius-sm: 10px;
   --font-en: 'Inter', sans-serif;
@@ -46,8 +65,18 @@
 /* Prevent iOS Safari auto-zoom on input focus (triggered when font-size < 16px) */
 input, textarea, select { font-size: 1rem; }
 
+/* Fixed sky gradient behind everything */
+#sky-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, var(--sky-top), var(--sky-bot));
+  transition: --sky-top 0.7s ease, --sky-bot 0.7s ease;
+  pointer-events: none;
+}
+
 body {
-  background: var(--indigo);
+  background: transparent;
   color: var(--text);
   font-family: var(--font-en);
   min-height: 100vh;
@@ -56,6 +85,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
   touch-action: manipulation;
+  transition: color 0.5s ease;
 }
 
 body.rtl { font-family: var(--font-he); direction: rtl; }
@@ -161,9 +191,10 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
 .setup-orb {
   width: 90px; height: 90px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, var(--lavender), var(--indigo-light));
-  box-shadow: 0 0 40px rgba(184,169,212,0.4);
+  background: radial-gradient(circle at 38% 36%, var(--sun-a), var(--sun-b));
+  box-shadow: 0 0 60px var(--sun-glow), 0 0 22px rgba(255,255,240,0.12);
   animation: breathe 4s ease-in-out infinite;
+  transition: --sun-a 0.7s ease, --sun-b 0.7s ease, --sun-glow 0.7s ease, box-shadow 0.7s ease;
 }
 
 .setup-title {
@@ -287,10 +318,11 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
-  background: rgba(26,26,46,0.92);
+  background: var(--header-bg);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   z-index: 50;
+  transition: background 0.7s ease;
 }
 
 .app-logo {
@@ -422,13 +454,14 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
 .tab-bar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  background: rgba(26,26,46,0.96);
+  background: var(--tab-bg);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   border-top: 1px solid var(--border);
   display: flex;
   padding: 0.5rem env(safe-area-inset-right) calc(0.5rem + env(safe-area-inset-bottom)) env(safe-area-inset-left);
   z-index: 50;
+  transition: background 0.7s ease;
 }
 .tab-btn {
   flex: 1;
@@ -474,10 +507,10 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
 .mood-orb {
   width: 80px; height: 80px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, var(--orb-color, var(--lavender)), var(--indigo-light));
-  box-shadow: 0 0 40px var(--orb-glow, rgba(184,169,212,0.35));
+  background: radial-gradient(circle at 38% 36%, var(--sun-a), var(--sun-b));
+  box-shadow: 0 0 55px var(--sun-glow), 0 0 18px rgba(255,255,240,0.12);
   animation: breathe 4s ease-in-out infinite;
-  transition: background 0.6s, box-shadow 0.6s;
+  transition: --sun-a 0.7s ease, --sun-b 0.7s ease, --sun-glow 0.7s ease, box-shadow 0.7s ease;
   cursor: default;
 }
 
@@ -522,18 +555,10 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
   left: 0; right: 0;
   height: 6px;
   border-radius: 3px;
-  background: linear-gradient(to right,
-    #6b3a4a, #7a4a5e, #7a6070, #6a7a9e, #6a8aae,
-    #7a8aaa, #8a8ab0, #8a9ab8, #7a9eb8, #7aaeb0,
-    #7ab8a0, #8fb88a, #b8b46a, #d4a0c8, #e8c4d0
-  );
+  background: linear-gradient(to right, var(--h-low), var(--h-mid1), var(--h-mid2), var(--h-high));
 }
 .rtl .mood-slider-track::before {
-  background: linear-gradient(to left,
-    #6b3a4a, #7a4a5e, #7a6070, #6a7a9e, #6a8aae,
-    #7a8aaa, #8a8ab0, #8a9ab8, #7a9eb8, #7aaeb0,
-    #7ab8a0, #8fb88a, #b8b46a, #d4a0c8, #e8c4d0
-  );
+  background: linear-gradient(to left, var(--h-low), var(--h-mid1), var(--h-mid2), var(--h-high));
 }
 
 input[type=range].mood-range {
@@ -554,9 +579,9 @@ input[type=range].mood-range::-webkit-slider-thumb {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--moon);
-  border: 3px solid var(--thumb-color, var(--lavender));
-  box-shadow: 0 0 12px var(--thumb-glow, rgba(184,169,212,0.5));
+  background: var(--sun-a);
+  border: 3px solid var(--thumb-color, var(--h-mid1));
+  box-shadow: 0 0 14px var(--sun-glow);
   transition: border-color 0.3s, box-shadow 0.3s;
   cursor: grab;
 }
@@ -566,9 +591,9 @@ input[type=range].mood-range::-moz-range-thumb {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--moon);
-  border: 3px solid var(--thumb-color, var(--lavender));
-  box-shadow: 0 0 12px var(--thumb-glow, rgba(184,169,212,0.5));
+  background: var(--sun-a);
+  border: 3px solid var(--thumb-color, var(--h-mid1));
+  box-shadow: 0 0 14px var(--sun-glow);
   transition: border-color 0.3s, box-shadow 0.3s;
   cursor: grab;
 }
@@ -862,53 +887,14 @@ input[type=range].mood-range:focus { outline: none; }
   .mood-orb, .setup-orb { animation: none; }
 }
 
-/* ── LIGHT MODE ── */
-body.light {
-  --indigo: #f2eff9;
-  --indigo-mid: #e8e4f4;
-  --indigo-light: #ddd8ee;
-  --lavender: #6b5b9e;
-  --lavender-dim: #9080b8;
-  --blush: #b86878;
-  --sage: #4d7a70;
-  --moon: #1c1630;
-  --moon-dim: #3a3060;
-  --text: #1c1630;
-  --text-dim: #706890;
-  --card: rgba(255,255,255,0.65);
-  --card-hover: rgba(255,255,255,0.88);
-  --border: rgba(90,70,150,0.12);
+/* ── HORIZON RIBBON ── */
+.horizon-ribbon {
+  height: 3px;
+  background: linear-gradient(to right, var(--h-low), var(--h-mid1), var(--h-mid2), var(--h-high));
+  flex-shrink: 0;
 }
-
-/* Hardcoded rgba values that don't use variables */
-body.light .app-header  { background: rgba(242,239,249,0.92); }
-body.light .tab-bar     { background: rgba(242,239,249,0.96); }
-body.light .panic-overlay { background: #f5f2fd; }
-body.light .toast       { background: var(--indigo-light); }
-
-body.light .ai-panel {
-  background: linear-gradient(135deg, rgba(107,91,158,0.07), rgba(184,104,120,0.05));
-  border-color: rgba(107,91,158,0.18);
-}
-body.light .chat-bubble.ai {
-  background: rgba(107,91,158,0.09);
-  border-color: rgba(107,91,158,0.18);
-}
-body.light .chat-bubble.user {
-  background: rgba(107,91,158,0.16);
-  border-color: rgba(107,91,158,0.24);
-}
-body.light .chat-bubble.typing {
-  background: rgba(107,91,158,0.06);
-  border-color: rgba(107,91,158,0.12);
-}
-
-@media (min-width: 720px) {
-  body.light {
-    background:
-      radial-gradient(circle at 50% 0%, rgba(107,91,158,0.06), transparent 60%),
-      #e8e4f4;
-  }
+.rtl .horizon-ribbon {
+  background: linear-gradient(to left, var(--h-low), var(--h-mid1), var(--h-mid2), var(--h-high));
 }
 
 /* ── PANIC BUTTON ── */
@@ -1107,11 +1093,6 @@ body.light .chat-bubble.typing {
 .panic-send-btn:disabled { opacity: 0.3; cursor: default; }
 
 @media (min-width: 720px) {
-  body {
-    background:
-      radial-gradient(circle at 50% 0%, rgba(184,169,212,0.08), transparent 60%),
-      #12101f;
-  }
   #lang-screen, #auth-screen, #profile-screen, #app {
     max-width: 480px;
     margin: 0 auto;
@@ -1138,8 +1119,8 @@ body.light .chat-bubble.typing {
 </style>
 </head>
 <body>
-<!-- Apply saved/system theme before any paint to avoid flash -->
-<script>(function(){var s=localStorage.getItem('wj_theme');if(s==='light'||(!s&&matchMedia('(prefers-color-scheme:light)').matches))document.body.classList.add('light')})();</script>
+<!-- Sky gradient background (horizon design) -->
+<div id="sky-bg" aria-hidden="true"></div>
 
 <!-- AUTH SCREEN (unused — kept so .remove('visible') calls don't crash) -->
 <div id="auth-screen"></div>
@@ -1214,10 +1195,10 @@ body.light .chat-bubble.typing {
           </button>
         </div>
       </div>
-      <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme"></button>
       <button class="icon-btn" title="Settings" onclick="toggleSettings()"><i data-lucide="settings" width="18" height="18"></i></button>
     </div>
   </header>
+  <div class="horizon-ribbon" aria-hidden="true"></div>
 
   <main class="app-content">
     <!-- WRITE -->
@@ -1401,6 +1382,65 @@ const MOODS = [
   { label:"Joyful",      labelHe:"עליז",       color:"#d4a0c8", glow:"rgba(212,160,200,0.45)" },
   { label:"Blissful",    labelHe:"אושר מלא",   color:"#e8c4d0", glow:"rgba(232,196,208,0.5)" },
 ];
+
+// ── HORIZON SKY SYSTEM ──
+// Each entry maps a mood index (0=Suffering … 14=Blissful) to sky + sun + UI colors.
+// top/bot = sky gradient stops; sa/sb = sun inner/outer color; sg = sun glow
+// tx/txd = text/text-dim; mn/mnd = --moon/--moon-dim; card/bdr = card/border
+// hdr/tab = header-bg/tab-bg
+const HORIZON = [
+  // 0 Suffering — deep night
+  { top:'#0f0d1c', bot:'#1e1d38', sa:'rgba(190,200,235,0.72)', sb:'#1e1d38', sg:'rgba(50,58,110,0.36)', tx:'#f0edf7', txd:'#9b94b3', mn:'#f0edf7', mnd:'#c5bfd8', card:'rgba(255,255,255,0.05)', bdr:'rgba(255,255,255,0.07)', hdr:'rgba(15,13,28,0.94)', tab:'rgba(15,13,28,0.97)' },
+  // 1 Miserable — night
+  { top:'#131228', bot:'#22213c', sa:'rgba(195,204,238,0.73)', sb:'#22213c', sg:'rgba(58,68,120,0.36)', tx:'#f0edf7', txd:'#9b94b3', mn:'#f0edf7', mnd:'#c5bfd8', card:'rgba(255,255,255,0.05)', bdr:'rgba(255,255,255,0.07)', hdr:'rgba(19,18,40,0.94)', tab:'rgba(19,18,40,0.97)' },
+  // 2 Very Sad — late night
+  { top:'#181634', bot:'#2a284e', sa:'rgba(200,208,242,0.74)', sb:'#2a284e', sg:'rgba(66,76,130,0.38)', tx:'#f0edf7', txd:'#9b94b3', mn:'#f0edf7', mnd:'#c5bfd8', card:'rgba(255,255,255,0.06)', bdr:'rgba(255,255,255,0.08)', hdr:'rgba(24,22,52,0.94)', tab:'rgba(24,22,52,0.97)' },
+  // 3 Sad — early hours
+  { top:'#1a1838', bot:'#2E3148', sa:'rgba(205,212,244,0.75)', sb:'#2E3148', sg:'rgba(74,84,138,0.38)', tx:'#f0edf7', txd:'#9b94b3', mn:'#f0edf7', mnd:'#c5bfd8', card:'rgba(255,255,255,0.06)', bdr:'rgba(255,255,255,0.08)', hdr:'rgba(26,24,56,0.94)', tab:'rgba(26,24,56,0.97)' },
+  // 4 Low — pre-dawn dark
+  { top:'#1d2142', bot:'#373e68', sa:'rgba(210,216,246,0.76)', sb:'#373e68', sg:'rgba(82,92,148,0.38)', tx:'#f0edf7', txd:'#9b94b3', mn:'#f0edf7', mnd:'#c5bfd8', card:'rgba(255,255,255,0.06)', bdr:'rgba(255,255,255,0.09)', hdr:'rgba(29,33,66,0.94)', tab:'rgba(29,33,66,0.97)' },
+  // 5 Numb — pre-dawn blue
+  { top:'#222650', bot:'#3e4878', sa:'rgba(215,222,248,0.78)', sb:'#3e4878', sg:'rgba(90,100,160,0.40)', tx:'#eceaf5', txd:'#9494b8', mn:'#eceaf5', mnd:'#c0bcd8', card:'rgba(255,255,255,0.07)', bdr:'rgba(255,255,255,0.09)', hdr:'rgba(34,38,80,0.93)', tab:'rgba(34,38,80,0.96)' },
+  // 6 Neutral — blue hour
+  { top:'#273268', bot:'#4a5488', sa:'rgba(222,228,252,0.80)', sb:'#4a5488', sg:'rgba(100,110,172,0.40)', tx:'#eceaf5', txd:'#9090b8', mn:'#eceaf5', mnd:'#bcb8d6', card:'rgba(255,255,255,0.07)', bdr:'rgba(255,255,255,0.09)', hdr:'rgba(39,50,104,0.93)', tab:'rgba(39,50,104,0.96)' },
+  // 7 Okay — twilight (default)
+  { top:'#2E3A78', bot:'#5B6B8C', sa:'rgba(228,234,255,0.82)', sb:'#5B6B8C', sg:'rgba(110,122,185,0.42)', tx:'#eceaf5', txd:'#9090b4', mn:'#eceaf5', mnd:'#b8b4d4', card:'rgba(255,255,255,0.08)', bdr:'rgba(255,255,255,0.10)', hdr:'rgba(46,58,120,0.92)', tab:'rgba(46,58,120,0.95)' },
+  // 8 Calm — dawn blue
+  { top:'#354888', bot:'#6882a8', sa:'rgba(235,240,255,0.84)', sb:'#6882a8', sg:'rgba(120,138,198,0.44)', tx:'#e8e6f3', txd:'#8c8ab2', mn:'#e8e6f3', mnd:'#b4b0d2', card:'rgba(255,255,255,0.08)', bdr:'rgba(255,255,255,0.11)', hdr:'rgba(53,72,136,0.92)', tab:'rgba(53,72,136,0.95)' },
+  // 9 Good — first golden light
+  { top:'#4a5890', bot:'#8FB8C9', sa:'rgba(255,242,200,0.84)', sb:'#a09060', sg:'rgba(200,170,100,0.48)', tx:'#e4e2f0', txd:'#8888b0', mn:'#e4e2f0', mnd:'#b0acce', card:'rgba(255,255,255,0.10)', bdr:'rgba(255,255,255,0.12)', hdr:'rgba(74,88,144,0.90)', tab:'rgba(74,88,144,0.93)' },
+  // 10 Happy — dawn, text flips to dark
+  { top:'#5c6e98', bot:'#a8c8d8', sa:'rgba(255,250,218,0.90)', sb:'#d8aa50', sg:'rgba(235,190,80,0.52)', tx:'#1e1c3a', txd:'#545498', mn:'#1e1c3a', mnd:'#484880', card:'rgba(255,255,255,0.25)', bdr:'rgba(0,0,80,0.10)', hdr:'rgba(92,110,152,0.88)', tab:'rgba(92,110,152,0.92)' },
+  // 11 Very Happy — golden morning
+  { top:'#6e8ea8', bot:'#c8dce8', sa:'rgba(255,253,225,0.93)', sb:'#F4C77B', sg:'rgba(244,199,123,0.58)', tx:'#191838', txd:'#4a4896', mn:'#191838', mnd:'#44448e', card:'rgba(255,255,255,0.32)', bdr:'rgba(0,0,80,0.09)', hdr:'rgba(110,142,168,0.85)', tab:'rgba(110,142,168,0.90)' },
+  // 12 Excited — bright morning
+  { top:'#8ab0c8', bot:'#dce8f0', sa:'rgba(255,254,238,0.95)', sb:'#f0c060', sg:'rgba(240,192,100,0.62)', tx:'#161438', txd:'#444494', mn:'#161438', mnd:'#40408c', card:'rgba(255,255,255,0.40)', bdr:'rgba(0,0,80,0.08)', hdr:'rgba(138,176,200,0.82)', tab:'rgba(138,176,200,0.88)' },
+  // 13 Joyful — warm day
+  { top:'#a6c6dc', bot:'#e8eff8', sa:'rgba(255,254,245,0.97)', sb:'#fcd888', sg:'rgba(252,216,136,0.66)', tx:'#121238', txd:'#3e3e90', mn:'#121238', mnd:'#3a3a88', card:'rgba(255,255,255,0.50)', bdr:'rgba(0,0,80,0.07)', hdr:'rgba(166,198,220,0.80)', tab:'rgba(166,198,220,0.86)' },
+  // 14 Blissful — golden hour
+  { top:'#bdd8e8', bot:'#F4E8C8', sa:'rgba(255,255,248,0.98)', sb:'#F4C77B', sg:'rgba(244,199,123,0.72)', tx:'#0e0c34', txd:'#383892', mn:'#0e0c34', mnd:'#343488', card:'rgba(255,255,255,0.62)', bdr:'rgba(0,0,80,0.06)', hdr:'rgba(189,216,232,0.78)', tab:'rgba(189,216,232,0.84)' },
+];
+
+function applySky(i) {
+  const h = HORIZON[i];
+  const root = document.documentElement;
+  root.style.setProperty('--sky-top',    h.top);
+  root.style.setProperty('--sky-bot',    h.bot);
+  root.style.setProperty('--sun-a',      h.sa);
+  root.style.setProperty('--sun-b',      h.sb);
+  root.style.setProperty('--sun-glow',   h.sg);
+  root.style.setProperty('--text',       h.tx);
+  root.style.setProperty('--text-dim',   h.txd);
+  root.style.setProperty('--moon',       h.mn);
+  root.style.setProperty('--moon-dim',   h.mnd);
+  root.style.setProperty('--card',       h.card);
+  root.style.setProperty('--card-hover', h.card.replace(/[\d.]+(?=\))/, n => Math.min(1, +n + 0.08).toFixed(2)));
+  root.style.setProperty('--border',     h.bdr);
+  root.style.setProperty('--header-bg',  h.hdr);
+  root.style.setProperty('--tab-bg',     h.tab);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = h.top;
+}
 
 function moodFaceSVG(index, color, size = 24) {
   const valence = (index / 14 - 0.5) * 2;
@@ -1985,11 +2025,10 @@ function launchApp() {
   const app = document.getElementById('app');
   app.classList.add('visible');
   applyLang();
-  buildMoodGrid();
+  buildMoodGrid(); // calls onSliderMove(7) → applySky(7)
   renderHistory();
   renderInsights();
   updateUserUI();
-  initTheme();
   lucide.createIcons();
 }
 
@@ -2056,12 +2095,10 @@ function onSliderMove(val) {
   nameEl.style.color = m.color;
   const display = document.getElementById('mood-display');
   display.style.borderColor = m.color + '88';
-  const orb = document.getElementById('mood-orb');
-  orb.style.setProperty('--orb-color', m.color);
-  orb.style.setProperty('--orb-glow', m.glow);
-  const slider = document.getElementById('mood-slider');
-  slider.style.setProperty('--thumb-color', m.color);
-  slider.style.setProperty('--thumb-glow', m.glow);
+  // Horizon sky + sun update
+  applySky(i);
+  // Slider thumb accent color
+  document.getElementById('mood-slider').style.setProperty('--thumb-color', m.color);
   state.selectedMood = i;
 }
 
@@ -2151,9 +2188,9 @@ function saveEntry() {
   document.getElementById('entry-text').value = '';
   state.selectedMood = null;
   document.querySelectorAll('.mood-chip').forEach(c => c.classList.remove('selected'));
-  const orb = document.getElementById('mood-orb');
-  orb.style.removeProperty('--orb-color');
-  orb.style.removeProperty('--orb-glow');
+  // Reset slider + sky to neutral (7)
+  const slider = document.getElementById('mood-slider');
+  if (slider) { slider.value = 7; onSliderMove(7); }
   ['prompt-panel','reflect-panel'].forEach(id => {
     document.getElementById(id).classList.remove('visible');
   });
@@ -2444,35 +2481,6 @@ function showQuickReplies(options) {
   ).join('');
 }
 
-// ── THEME ──
-function initTheme() {
-  const saved = localStorage.getItem('wj_theme');
-  const isLight = saved === 'light' || (!saved && matchMedia('(prefers-color-scheme:light)').matches);
-  applyTheme(isLight ? 'light' : 'dark', false);
-  // Track system preference changes when no manual override is saved
-  matchMedia('(prefers-color-scheme:light)').addEventListener('change', e => {
-    if (!localStorage.getItem('wj_theme')) applyTheme(e.matches ? 'light' : 'dark', false);
-  });
-}
-
-function applyTheme(theme, save = true) {
-  document.body.classList.toggle('light', theme === 'light');
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.content = theme === 'light' ? '#e8e4f4' : '#1a1a2e';
-  if (save) localStorage.setItem('wj_theme', theme);
-  const btn = document.getElementById('theme-btn');
-  if (btn) {
-    btn.innerHTML = theme === 'light'
-      ? '<i data-lucide="moon" width="18" height="18"></i>'
-      : '<i data-lucide="sun" width="18" height="18"></i>';
-    lucide.createIcons();
-  }
-}
-
-function toggleTheme() {
-  applyTheme(document.body.classList.contains('light') ? 'dark' : 'light');
-}
-
 // ── GLOBAL EXPORTS ──
 window.onSliderMove = onSliderMove;
 window.onSliderCommit = onSliderCommit;
@@ -2498,7 +2506,6 @@ window.getWeeklyReflection = getWeeklyReflection;
 window.openPanic = openPanic;
 window.closePanic = closePanic;
 window.sendPanicMessage = sendPanicMessage;
-window.toggleTheme = toggleTheme;
 
 // ── INIT ──
 (function init() {
