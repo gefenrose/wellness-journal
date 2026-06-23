@@ -829,6 +829,201 @@ input[type=range].mood-range:focus { outline: none; }
   .mood-orb, .setup-orb { animation: none; }
 }
 
+/* ── PANIC BUTTON ── */
+.panic-fab {
+  position: fixed;
+  bottom: calc(4.8rem + env(safe-area-inset-bottom));
+  right: 1.25rem;
+  z-index: 60;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d95f76, #b84455);
+  border: none;
+  box-shadow: 0 4px 18px rgba(217,95,118,0.55), 0 2px 6px rgba(0,0,0,0.3);
+  color: #fff;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  animation: panic-glow 3s ease-in-out infinite;
+  transition: transform 0.15s;
+  touch-action: manipulation;
+  -webkit-appearance: none;
+}
+.panic-fab:hover { transform: scale(1.1); }
+.panic-fab:active { transform: scale(0.93); }
+@keyframes panic-glow {
+  0%,100% { box-shadow: 0 4px 18px rgba(217,95,118,0.5), 0 2px 6px rgba(0,0,0,0.3); }
+  50%      { box-shadow: 0 4px 28px rgba(217,95,118,0.75), 0 2px 6px rgba(0,0,0,0.3); }
+}
+
+/* ── PANIC OVERLAY ── */
+.panic-overlay {
+  position: fixed;
+  inset: 0;
+  background: #0f0d1c;
+  z-index: 300;
+  display: none;
+  flex-direction: column;
+}
+.panic-overlay.open { display: flex; }
+
+.panic-header {
+  padding: calc(env(safe-area-inset-top) + 0.9rem) 1.25rem 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.panic-header-left { display: flex; align-items: center; gap: 0.75rem; }
+.panic-header-icon {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: rgba(217,95,118,0.15);
+  border: 1px solid rgba(217,95,118,0.3);
+  display: flex; align-items: center; justify-content: center;
+  color: #e07a8a;
+  flex-shrink: 0;
+}
+.panic-header-text h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--moon);
+  line-height: 1.2;
+}
+.panic-header-text p {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 0.1rem;
+}
+
+.panic-close-btn {
+  background: rgba(143,179,168,0.1);
+  border: 1px solid rgba(143,179,168,0.25);
+  border-radius: 100px;
+  color: var(--sage);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  padding: 0.45rem 1rem;
+  display: flex; align-items: center; gap: 0.4rem;
+  transition: all 0.2s;
+  touch-action: manipulation;
+  -webkit-appearance: none;
+  white-space: nowrap;
+}
+.panic-close-btn:hover { background: rgba(143,179,168,0.2); }
+
+.panic-messages {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.chat-bubble {
+  max-width: 88%;
+  padding: 0.85rem 1.1rem;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  animation: bubbleIn 0.22s ease;
+  white-space: pre-wrap;
+}
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.chat-bubble.ai {
+  background: rgba(184,169,212,0.1);
+  border: 1px solid rgba(184,169,212,0.18);
+  color: var(--moon);
+  align-self: flex-start;
+  border-bottom-left-radius: 5px;
+}
+.chat-bubble.user {
+  background: rgba(184,169,212,0.2);
+  border: 1px solid rgba(184,169,212,0.28);
+  color: var(--moon);
+  align-self: flex-end;
+  border-bottom-right-radius: 5px;
+}
+.chat-bubble.typing {
+  background: rgba(184,169,212,0.07);
+  border: 1px solid rgba(184,169,212,0.12);
+  align-self: flex-start;
+  border-bottom-left-radius: 5px;
+  padding: 0.7rem 1rem;
+}
+
+.rtl .chat-bubble.ai  { border-bottom-left-radius: 20px; border-bottom-right-radius: 5px; }
+.rtl .chat-bubble.user { border-bottom-right-radius: 20px; border-bottom-left-radius: 5px; }
+
+.quick-replies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.25rem 1.25rem 0.75rem;
+  flex-shrink: 0;
+}
+.qr-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.48rem 1rem;
+  transition: all 0.18s;
+  touch-action: manipulation;
+  -webkit-appearance: none;
+}
+.qr-btn:hover { background: var(--card-hover); color: var(--lavender); border-color: var(--lavender-dim); }
+.qr-btn:active { opacity: 0.7; }
+
+.panic-input-row {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.panic-input {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.65rem 1.1rem;
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.panic-input:focus { border-color: var(--lavender-dim); }
+.panic-input::placeholder { color: var(--text-dim); }
+.panic-send-btn {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--lavender), var(--blush));
+  border: none;
+  color: var(--indigo);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: opacity 0.2s, transform 0.15s;
+  touch-action: manipulation;
+  -webkit-appearance: none;
+}
+.panic-send-btn:hover { opacity: 0.88; }
+.panic-send-btn:active { transform: scale(0.92); }
+.panic-send-btn:disabled { opacity: 0.3; cursor: default; }
+
 @media (min-width: 720px) {
   body {
     background:
@@ -848,6 +1043,15 @@ input[type=range].mood-range:focus { outline: none; }
     transform: translateX(-50%);
   }
   .user-menu { right: 0; }
+  .panic-fab {
+    right: calc(50% - 240px + 1.25rem);
+  }
+  .panic-overlay {
+    max-width: 480px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 0 0 1px var(--border), 0 30px 80px rgba(0,0,0,0.6);
+  }
 }
 </style>
 </head>
@@ -1010,6 +1214,11 @@ input[type=range].mood-range:focus { outline: none; }
       <span id="tabl-insights">Insights</span>
     </button>
   </nav>
+
+  <!-- Panic FAB -->
+  <button class="panic-fab" id="panic-fab" onclick="openPanic()" aria-label="I need help">
+    <i data-lucide="heart-pulse" width="22" height="22"></i>
+  </button>
 </div>
 
 <!-- Entry Modal -->
@@ -1025,6 +1234,33 @@ input[type=range].mood-range:focus { outline: none; }
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Panic Overlay -->
+<div class="panic-overlay" id="panic-overlay">
+  <div class="panic-header">
+    <div class="panic-header-left">
+      <div class="panic-header-icon">
+        <i data-lucide="heart-pulse" width="18" height="18"></i>
+      </div>
+      <div class="panic-header-text">
+        <h2 id="panic-title">You're safe. I'm here.</h2>
+        <p id="panic-sub">Let's get through this together</p>
+      </div>
+    </div>
+    <button class="panic-close-btn" onclick="closePanic()">
+      <i data-lucide="check" width="14" height="14"></i>
+      <span id="lbl-panic-close">I feel better</span>
+    </button>
+  </div>
+  <div class="panic-messages" id="panic-messages"></div>
+  <div class="quick-replies" id="quick-replies"></div>
+  <div class="panic-input-row">
+    <input class="panic-input" id="panic-input" type="text" placeholder="Type how you're feeling…" onkeydown="if(event.key==='Enter')sendPanicMessage()"/>
+    <button class="panic-send-btn" id="panic-send-btn" onclick="sendPanicMessage()">
+      <i data-lucide="send" width="17" height="17"></i>
+    </button>
+  </div>
+</div>
 
 <script>
 // ── GOOGLE DRIVE CONFIG ──
@@ -1137,6 +1373,13 @@ const T = {
     modalClose: '✕',
     syncSaving: 'Saving…',
     syncSaved: 'Saved',
+    panicTitle: "You're safe. I'm here.",
+    panicSub: "Let's get through this together",
+    panicClose: 'I feel better',
+    panicInputPlaceholder: 'Type how you\'re feeling…',
+    panicOpening: "I'm right here with you. 💙\n\nYou're safe in this moment, even if it doesn't feel that way. Take one slow breath with me — breathe in… and out.\n\nWhat's happening for you right now?",
+    panicQR1: ["I'm panicking", "Can't breathe", "Racing thoughts", "I feel overwhelmed"],
+    panicQR2: ["Keep going", "Try something else", "That helped a little", "I'm still struggling"],
   },
   he: {
     logo: 'יומן <span>רווחה</span>',
@@ -1170,6 +1413,13 @@ const T = {
     modalClose: '✕',
     syncSaving: 'שומר…',
     syncSaved: 'נשמר',
+    panicTitle: 'אתה בטוח. אני כאן.',
+    panicSub: 'נעבור את זה ביחד',
+    panicClose: 'אני מרגיש טוב יותר',
+    panicInputPlaceholder: 'כתוב איך אתה מרגיש…',
+    panicOpening: 'אני ממש כאן איתך. 💙\n\nאתה בטוח ברגע הזה, גם אם זה לא מרגיש ככה. קח איתי נשימה אחת איטית — שאף… ונשוף.\n\nמה קורה לך עכשיו?',
+    panicQR1: ["אני בפאניקה", "לא מצליח לנשום", "המחשבות לא עוצרות", "אני מרגיש מוצף"],
+    panicQR2: ["המשך", "נסה משהו אחר", "זה עזר קצת", "עדיין מתקשה"],
   }
 };
 
@@ -1782,6 +2032,126 @@ function showToast(msg) {
   setTimeout(() => el.classList.remove('show'), 2500);
 }
 
+// ── PANIC / CBT CHAT ──
+const CBT_SYSTEM = `You are a warm, present CBT-trained support companion for someone in acute distress. Your ONLY goal is to help them feel safe and calm RIGHT NOW.
+
+Rules you must follow:
+- Keep every response SHORT: 2–4 sentences maximum. Brevity is kindness in a crisis.
+- Always validate feelings first before offering any technique ("That sounds really hard", "Of course you feel that way").
+- Offer ONE concrete action at a time — never list multiple techniques.
+- Rotate through CBT techniques naturally as the conversation progresses:
+    • Box breathing: "Breathe in for 4 counts… hold 4… out for 4… hold 4. Let's do it again."
+    • 5-4-3-2-1 grounding: guide them through each sense one at a time across multiple messages
+    • Cognitive defusion: "I notice I'm having the thought that… and I can let it pass like a cloud"
+    • Body scan: ask them to notice one body part at a time and soften it
+    • Thought record: "What's the most likely thing that will actually happen?"
+- NEVER say "just relax", "calm down", or minimize feelings.
+- Ask at most ONE question per message.
+- If they say they feel better, celebrate warmly and gently check in.
+- Speak like a caring, grounded friend — never clinical.`;
+
+let panicHistory = [];
+let panicPhase = 'initial'; // 'initial' | 'in-progress' | 'calmer'
+
+function openPanic() {
+  panicHistory = [];
+  panicPhase = 'initial';
+  const overlay = document.getElementById('panic-overlay');
+  overlay.classList.add('open');
+  document.getElementById('panic-messages').innerHTML = '';
+  document.getElementById('quick-replies').innerHTML = '';
+
+  // Apply current language
+  document.getElementById('panic-title').textContent = t('panicTitle');
+  document.getElementById('panic-sub').textContent = t('panicSub');
+  document.getElementById('lbl-panic-close').textContent = t('panicClose');
+  document.getElementById('panic-input').placeholder = t('panicInputPlaceholder');
+
+  lucide.createIcons();
+
+  // Instant hardcoded opening — no AI latency at a stressful moment
+  const opening = t('panicOpening');
+  appendBubble('ai', opening);
+  panicHistory.push({ role: 'assistant', content: opening });
+  showQuickReplies(T[state.lang].panicQR1);
+}
+
+function closePanic() {
+  document.getElementById('panic-overlay').classList.remove('open');
+  panicHistory = [];
+}
+
+async function sendPanicMessage(text) {
+  const input = document.getElementById('panic-input');
+  const msg = (text || input.value).trim();
+  if (!msg) return;
+
+  input.value = '';
+  document.getElementById('quick-replies').innerHTML = '';
+  document.getElementById('panic-send-btn').disabled = true;
+
+  appendBubble('user', msg);
+  panicHistory.push({ role: 'user', content: msg });
+
+  // Update phase based on sentiment keywords
+  const calmerWords = ['better', 'ok', 'okay', 'helped', 'calm', 'טוב', 'עזר', 'רגוע'];
+  if (calmerWords.some(w => msg.toLowerCase().includes(w))) panicPhase = 'calmer';
+  else if (panicPhase === 'initial') panicPhase = 'in-progress';
+
+  // Typing indicator
+  const typingId = 'typing-' + Date.now();
+  appendBubble('typing', '', typingId);
+
+  try {
+    const history = panicHistory.slice(-8); // keep last 8 turns for context
+    const conversation = history.map(m =>
+      `${m.role === 'user' ? 'Person' : 'Companion'}: ${m.content}`
+    ).join('\n');
+    const lang = state.lang === 'he' ? 'Hebrew' : 'English';
+    const prompt = `${CBT_SYSTEM}\n\nRespond in ${lang}.\n\n${conversation}\nCompanion:`;
+
+    const reply = await callAI(prompt);
+
+    document.getElementById(typingId)?.remove();
+    appendBubble('ai', reply);
+    panicHistory.push({ role: 'assistant', content: reply });
+
+    const qrSet = panicPhase === 'calmer' ? T[state.lang].panicQR2 : T[state.lang].panicQR2;
+    showQuickReplies(qrSet);
+  } catch(e) {
+    document.getElementById(typingId)?.remove();
+    appendBubble('ai', t('toastError'));
+  }
+
+  document.getElementById('panic-send-btn').disabled = false;
+  document.getElementById('panic-input').focus();
+}
+
+function appendBubble(role, text, id) {
+  const wrap = document.getElementById('panic-messages');
+  const el = document.createElement('div');
+  if (id) el.id = id;
+
+  if (role === 'typing') {
+    el.className = 'chat-bubble typing';
+    el.innerHTML = `<div class="ai-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  } else {
+    el.className = `chat-bubble ${role}`;
+    el.textContent = text;
+  }
+
+  wrap.appendChild(el);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function showQuickReplies(options) {
+  const container = document.getElementById('quick-replies');
+  container.innerHTML = options.map(opt =>
+    `<button class="qr-btn" onclick="sendPanicMessage('${opt.replace(/'/g, "\\'")}')">` +
+    `${opt}</button>`
+  ).join('');
+}
+
 // ── GLOBAL EXPORTS ──
 window.onSliderMove = onSliderMove;
 window.onSliderCommit = onSliderCommit;
@@ -1802,6 +2172,9 @@ window.continueAsGuest = continueAsGuest;
 window.signOut = signOut;
 window.toggleUserMenu = toggleUserMenu;
 window.getWeeklyReflection = getWeeklyReflection;
+window.openPanic = openPanic;
+window.closePanic = closePanic;
+window.sendPanicMessage = sendPanicMessage;
 
 // ── INIT ──
 (function init() {
