@@ -1626,6 +1626,7 @@ const T = {
     insightAITap: 'Tap to generate weekly reflection',
     insightGenerate: 'Generate',
     insightNoMoods: 'No mood data yet.',
+    panicSessionLabel: 'Support session',
     streakDays: d => `${d} day${d===1?'':'s'} in a row`,
     placeholder: "Write what's on your mind...",
     modalClose: '✕',
@@ -1690,6 +1691,7 @@ const T = {
     insightGenerate: 'צור',
     insightNoMoods: 'אין נתוני מצב רוח עדיין.',
     streakDays: d => `${d} יום${d===1?'':'ים'} ברצף`,
+    panicSessionLabel: 'שיחת תמיכה',
     placeholder: { m: 'כתוב מה עובר עליך...', f: 'כתבי מה עובר עליך...', n: 'כתבו מה שעובר עליכם...' },
     modalClose: '✕',
     syncSaving: 'שומר…',
@@ -2351,10 +2353,13 @@ function renderHistory() {
   list.innerHTML = state.entries.map((e,i) => {
     const m = e.mood !== null && e.mood !== undefined ? MOODS[e.mood] : null;
     const date = new Date(e.timestamp).toLocaleDateString(state.lang==='he'?'he-IL':'en-US', {weekday:'short',month:'short',day:'numeric'});
+    const metaBadge = e.type === 'panic'
+      ? `<span style="display:inline-flex;align-items:center;color:#e07a8a"><i data-lucide="heart-pulse" width="14" height="14"></i></span>`
+      : m ? `<div class="entry-mood-dot" style="background:${m.color}"></div><span style="display:inline-flex">${moodFaceSVG(e.mood, m.color, 16)}</span>` : '';
     return `
       <div class="entry-card" onclick="openEntry(${i})">
         <div class="entry-meta">
-          ${m ? `<div class="entry-mood-dot" style="background:${m.color}"></div><span style="display:inline-flex">${moodFaceSVG(e.mood, m.color, 16)}</span>` : ''}
+          ${metaBadge}
           <span class="entry-date">${date}</span>
         </div>
         <div class="entry-preview ${state.lang==='he'?'rtl':''}">${e.text}</div>
@@ -2368,9 +2373,18 @@ function openEntry(i) {
   const m = e.mood !== null && e.mood !== undefined ? MOODS[e.mood] : null;
   const date = new Date(e.timestamp).toLocaleDateString(state.lang==='he'?'he-IL':'en-US', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
   document.getElementById('modal-date').textContent = date;
-  document.getElementById('modal-meta').innerHTML = m ? `<span style="display:inline-flex">${moodFaceSVG(e.mood, m.color, 18)}</span> <span style="color:${m.color}">${state.lang==='he'?m.labelHe:m.label}</span>` : '';
-  let body = `<p>${e.text}</p>`;
-  if (e.reflection) body += `<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.85rem;color:var(--text-dim)"><div style="display:flex;align-items:center;gap:0.35rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--lavender);margin-bottom:0.5rem"><i data-lucide="brain" width="13" height="13"></i> Reflection</div>${e.reflection}</div>`;
+  let body;
+  if (e.type === 'panic') {
+    document.getElementById('modal-meta').innerHTML = `<span style="display:inline-flex;align-items:center;gap:0.35rem;color:#e07a8a"><i data-lucide="heart-pulse" width="16" height="16"></i> ${t('panicSessionLabel')}</span>`;
+    body = (e.transcript || []).map(msg => {
+      const isUser = msg.role === 'user';
+      return `<div style="margin-bottom:0.85rem;padding:0.6rem 0.85rem;border-radius:12px;font-size:0.875rem;line-height:1.6;${isUser ? 'background:var(--card);color:var(--text);margin-left:1.5rem' : 'color:var(--lavender);margin-right:1.5rem'}">${msg.content.replace(/\n/g, '<br>')}</div>`;
+    }).join('');
+  } else {
+    document.getElementById('modal-meta').innerHTML = m ? `<span style="display:inline-flex">${moodFaceSVG(e.mood, m.color, 18)}</span> <span style="color:${m.color}">${state.lang==='he'?m.labelHe:m.label}</span>` : '';
+    body = `<p>${e.text}</p>`;
+    if (e.reflection) body += `<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.85rem;color:var(--text-dim)"><div style="display:flex;align-items:center;gap:0.35rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--lavender);margin-bottom:0.5rem"><i data-lucide="brain" width="13" height="13"></i> Reflection</div>${e.reflection}</div>`;
+  }
   document.getElementById('modal-body').innerHTML = body;
   document.getElementById('modal-body').classList.toggle('rtl', e.lang==='he');
   document.getElementById('entry-modal').classList.add('open');
@@ -2568,7 +2582,29 @@ function openPanic() {
 
 function closePanic() {
   document.getElementById('panic-overlay').classList.remove('open');
+  const userMessages = panicHistory.filter(m => m.role === 'user');
+  if (userMessages.length > 0) savePanicEntry(panicHistory.slice());
   panicHistory = [];
+}
+
+function savePanicEntry(history) {
+  const firstUserMsg = history.find(m => m.role === 'user')?.content || '';
+  const label = t('panicSessionLabel');
+  const entry = {
+    id: Date.now().toString(),
+    text: firstUserMsg || label,
+    transcript: history,
+    mood: null,
+    reflection: '',
+    timestamp: Date.now(),
+    lang: state.lang,
+    type: 'panic',
+  };
+  state.entries.unshift(entry);
+  localStorage.setItem('wj_entries', JSON.stringify(state.entries));
+  saveToDrive();
+  renderHistory();
+  renderInsights();
 }
 
 async function sendPanicMessage(text) {
