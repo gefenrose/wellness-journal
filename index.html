@@ -1072,10 +1072,10 @@ input[type=range].mood-range:focus { outline: none; }
         <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/>
         <path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/>
       </svg>
-      Sign in with Google
+      <span id="lbl-google-signin">Sign in with Google</span>
     </button>
-    <div class="auth-divider">or</div>
-    <button class="guest-link" onclick="continueAsGuest()">Continue as guest</button>
+    <div class="auth-divider"><span id="lbl-auth-or">or</span></div>
+    <button class="guest-link" id="lbl-continue-guest" onclick="continueAsGuest()">Continue as guest</button>
     <p class="auth-notice" id="auth-notice">Your journal is saved privately to your Google Drive — no one else can access it.</p>
   </div>
 </div>
@@ -1086,7 +1086,7 @@ input[type=range].mood-range:focus { outline: none; }
   <div>
     <div class="setup-title">Wellness <span>Journal</span><br/>יומן <span>רווחה</span></div>
   </div>
-  <p class="setup-sub">Your private space to reflect, feel, and grow — powered by AI.</p>
+  <p class="setup-sub" id="setup-sub">Your private space to reflect, feel, and grow — powered by AI.</p>
   <div class="setup-card">
     <div>
       <label>Language / שפה</label>
@@ -1327,7 +1327,11 @@ ${eyesSVG}
 
 // ── STATE ──
 let state = {
-  lang: localStorage.getItem('wj_lang') || 'en',
+  lang: (() => {
+    const saved = localStorage.getItem('wj_lang');
+    if (saved) return saved;
+    return (navigator.language || '').toLowerCase().startsWith('he') ? 'he' : 'en';
+  })(),
   selectedMood: null,
   entries: [],
   user: null,         // { name, email, picture, id }
@@ -1373,6 +1377,13 @@ const T = {
     modalClose: '✕',
     syncSaving: 'Saving…',
     syncSaved: 'Saved',
+    signInWithGoogle: 'Sign in with Google',
+    authOr: 'or',
+    continueAsGuest: 'Continue as guest',
+    authNotice: 'Your journal is saved privately to your Google Drive — no one else can access it.',
+    authNoticeGuest: 'Guest mode: your journal is saved on this device only.',
+    setupSub: 'Your private space to reflect, feel, and grow — powered by AI.',
+    beginJournaling: 'Begin journaling →',
     panicTitle: "You're safe. I'm here.",
     panicSub: "Let's get through this together",
     panicClose: 'I feel better',
@@ -1413,6 +1424,13 @@ const T = {
     modalClose: '✕',
     syncSaving: 'שומר…',
     syncSaved: 'נשמר',
+    signInWithGoogle: 'כניסה עם Google',
+    authOr: 'או',
+    continueAsGuest: 'המשך כאורח',
+    authNotice: 'היומן שלך נשמר בפרטיות ב-Google Drive שלך — אף אחד אחר לא יכול לגשת אליו.',
+    authNoticeGuest: 'מצב אורח: היומן שלך נשמר במכשיר זה בלבד.',
+    setupSub: 'המקום הפרטי שלך להרגיש, להשתקף ולצמוח — עם עזרת AI.',
+    beginJournaling: '→ התחל לכתוב',
     panicTitle: 'אתה בטוח. אני כאן.',
     panicSub: 'נעבור את זה ביחד',
     panicClose: 'אני מרגיש טוב יותר',
@@ -1701,10 +1719,22 @@ function handleOutsideClick(e) {
 // ── SETUP ──
 function setLang(lang) {
   state.lang = lang;
+  const isHe = lang === 'he';
+  document.body.classList.toggle('rtl', isHe);
+  document.documentElement.dir = isHe ? 'rtl' : 'ltr';
+  document.documentElement.lang = isHe ? 'he' : 'en';
   document.getElementById('lang-en')?.classList.toggle('active', lang==='en');
   document.getElementById('lang-he')?.classList.toggle('active', lang==='he');
   document.getElementById('slang-en')?.classList.toggle('active', lang==='en');
   document.getElementById('slang-he')?.classList.toggle('active', lang==='he');
+  // Auth screen
+  document.getElementById('lbl-google-signin') && (document.getElementById('lbl-google-signin').textContent = t('signInWithGoogle'));
+  document.getElementById('lbl-auth-or') && (document.getElementById('lbl-auth-or').textContent = t('authOr'));
+  document.getElementById('lbl-continue-guest') && (document.getElementById('lbl-continue-guest').textContent = t('continueAsGuest'));
+  document.getElementById('auth-notice') && (document.getElementById('auth-notice').textContent = t('authNotice'));
+  // Setup screen
+  document.getElementById('setup-sub') && (document.getElementById('setup-sub').textContent = t('setupSub'));
+  document.getElementById('setup-btn') && (document.getElementById('setup-btn').textContent = t('beginJournaling'));
 }
 
 function completeSetup() {
