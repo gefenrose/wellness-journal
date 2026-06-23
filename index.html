@@ -1764,8 +1764,11 @@ function initGoogleAuth() {
     callback: handleDriveToken,
     error_callback: (err) => {
       console.warn('Auth error:', err);
-      if (_signInUserInitiated) showToast('Sign-in failed. Try again.');
+      if (!_signInUserInitiated) { _signInUserInitiated = false; return; }
       _signInUserInitiated = false;
+      if (err.type === 'popup_closed_by_user' || err.type === 'user_cancel') return;
+      const detail = err.type || err.message || JSON.stringify(err);
+      showToast(`Sign-in failed: ${detail}`);
     }
   });
 

@@ -1,4 +1,4 @@
-const CACHE = 'wellness-journal-v4';
+const CACHE = 'wellness-journal-v5';
 const STATIC = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
