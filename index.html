@@ -1366,21 +1366,21 @@ const UPLOAD_API = 'https://www.googleapis.com/upload/drive/v3/files';
 
 // ── MOODS ──
 const MOODS = [
-  { label:"Suffering",   labelHe:"סובל",       color:"#6b3a4a", glow:"rgba(107,58,74,0.5)" },
-  { label:"Miserable",   labelHe:"אומלל",      color:"#7a4a5e", glow:"rgba(122,74,94,0.45)" },
-  { label:"Very Sad",    labelHe:"עצוב מאוד",  color:"#7a6070", glow:"rgba(122,96,112,0.45)" },
-  { label:"Sad",         labelHe:"עצוב",       color:"#6a7a9e", glow:"rgba(106,122,158,0.45)" },
-  { label:"Low",         labelHe:"נמוך",       color:"#6a8aae", glow:"rgba(106,138,174,0.4)" },
-  { label:"Numb",        labelHe:"קהה",        color:"#7a8aaa", glow:"rgba(122,138,170,0.4)" },
-  { label:"Neutral",     labelHe:"ניטרלי",     color:"#8a8ab0", glow:"rgba(138,138,176,0.4)" },
-  { label:"Okay",        labelHe:"בסדר",       color:"#8a9ab8", glow:"rgba(138,154,184,0.4)" },
-  { label:"Calm",        labelHe:"רגוע",       color:"#7a9eb8", glow:"rgba(122,158,184,0.4)" },
-  { label:"Good",        labelHe:"טוב",        color:"#7aaeb0", glow:"rgba(122,174,176,0.4)" },
-  { label:"Happy",       labelHe:"שמח",        color:"#7ab8a0", glow:"rgba(122,184,160,0.45)" },
-  { label:"Very Happy",  labelHe:"מאוד שמח",   color:"#8fb88a", glow:"rgba(143,184,138,0.45)" },
-  { label:"Excited",     labelHe:"נרגש",       color:"#b8b46a", glow:"rgba(184,180,106,0.45)" },
-  { label:"Joyful",      labelHe:"עליז",       color:"#d4a0c8", glow:"rgba(212,160,200,0.45)" },
-  { label:"Blissful",    labelHe:"אושר מלא",   color:"#e8c4d0", glow:"rgba(232,196,208,0.5)" },
+  { label:"Suffering",   labelHe:"סובל",       labelHeF:"סובלת",      labelHeN:"סובלים",      color:"#6b3a4a", glow:"rgba(107,58,74,0.5)" },
+  { label:"Miserable",   labelHe:"אומלל",      labelHeF:"אומללה",     labelHeN:"אומללים",     color:"#7a4a5e", glow:"rgba(122,74,94,0.45)" },
+  { label:"Very Sad",    labelHe:"עצוב מאוד",  labelHeF:"עצובה מאוד", labelHeN:"עצובים מאוד", color:"#7a6070", glow:"rgba(122,96,112,0.45)" },
+  { label:"Sad",         labelHe:"עצוב",       labelHeF:"עצובה",      labelHeN:"עצובים",      color:"#6a7a9e", glow:"rgba(106,122,158,0.45)" },
+  { label:"Low",         labelHe:"נמוך",       labelHeF:"נמוכה",      labelHeN:"נמוכים",      color:"#6a8aae", glow:"rgba(106,138,174,0.4)" },
+  { label:"Numb",        labelHe:"קהה",        labelHeF:"קהה",        labelHeN:"קהים",        color:"#7a8aaa", glow:"rgba(122,138,170,0.4)" },
+  { label:"Neutral",     labelHe:"ניטרלי",     labelHeF:"ניטרלית",    labelHeN:"ניטרליים",    color:"#8a8ab0", glow:"rgba(138,138,176,0.4)" },
+  { label:"Okay",        labelHe:"בסדר",       labelHeF:"בסדר",       labelHeN:"בסדר",        color:"#8a9ab8", glow:"rgba(138,154,184,0.4)" },
+  { label:"Calm",        labelHe:"רגוע",       labelHeF:"רגועה",      labelHeN:"רגועים",      color:"#7a9eb8", glow:"rgba(122,158,184,0.4)" },
+  { label:"Good",        labelHe:"טוב",        labelHeF:"טובה",       labelHeN:"טובים",       color:"#7aaeb0", glow:"rgba(122,174,176,0.4)" },
+  { label:"Happy",       labelHe:"שמח",        labelHeF:"שמחה",       labelHeN:"שמחים",       color:"#7ab8a0", glow:"rgba(122,184,160,0.45)" },
+  { label:"Very Happy",  labelHe:"מאוד שמח",   labelHeF:"מאוד שמחה",  labelHeN:"מאוד שמחים",  color:"#8fb88a", glow:"rgba(143,184,138,0.45)" },
+  { label:"Excited",     labelHe:"נרגש",       labelHeF:"נרגשת",      labelHeN:"נרגשים",      color:"#b8b46a", glow:"rgba(184,180,106,0.45)" },
+  { label:"Joyful",      labelHe:"עליז",       labelHeF:"עליזה",      labelHeN:"עליזים",      color:"#d4a0c8", glow:"rgba(212,160,200,0.45)" },
+  { label:"Blissful",    labelHe:"אושר מלא",   labelHeF:"אושר מלא",   labelHeN:"אושר מלא",    color:"#e8c4d0", glow:"rgba(232,196,208,0.5)" },
 ];
 
 // ── HORIZON SKY SYSTEM ──
@@ -2091,7 +2091,8 @@ function onSliderMove(val) {
   const m = MOODS[i];
   document.getElementById('mood-emoji').innerHTML = moodFaceSVG(i, m.color, 22);
   const nameEl = document.getElementById('mood-name');
-  nameEl.textContent = state.lang === 'he' ? m.labelHe : m.label;
+  const labelHe = state.gender === 'f' ? m.labelHeF : state.gender === 'n' ? m.labelHeN : m.labelHe;
+  nameEl.textContent = state.lang === 'he' ? labelHe : m.label;
   nameEl.style.color = m.color;
   const display = document.getElementById('mood-display');
   display.style.borderColor = m.color + '88';
