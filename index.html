@@ -419,7 +419,7 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
 .tab-btn .tab-icon { display: flex; align-items: center; justify-content: center; }
 .tab-btn.active { color: var(--lavender); }
 
-.tab-content { display: none; padding-bottom: 5rem; }
+.tab-content { display: none; padding-bottom: calc(6.5rem + env(safe-area-inset-bottom)); }
 .tab-content.active { display: block; }
 
 /* ── WRITE TAB ── */
@@ -463,16 +463,18 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
 
 .mood-slider-labels {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-.mood-slider-labels span {
-  display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  font-size: 0.7rem;
-  color: var(--text-dim);
-  letter-spacing: 0.03em;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+.mood-slider-labels > span {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  opacity: 0.65;
+}
+.mood-slider-labels .mood-display {
+  flex: 1;
 }
 
 .mood-slider-track {
@@ -1203,15 +1205,15 @@ body.light .chat-bubble.typing {
         <div class="section-label" id="lbl-mood">How are you feeling?</div>
         <div class="mood-slider-wrap">
           <div class="mood-slider-labels">
-            <span>Suffering</span>
-            <span>Blissful</span>
+            <span id="mood-label-min"></span>
+            <div class="mood-display" id="mood-display">
+              <span class="mood-emoji" id="mood-emoji"></span>
+              <span class="mood-name" id="mood-name">Neutral</span>
+            </div>
+            <span id="mood-label-max"></span>
           </div>
           <div class="mood-slider-track">
             <input type="range" class="mood-range" id="mood-slider" min="0" max="14" value="7" oninput="onSliderMove(this.value)" onchange="onSliderCommit(this.value)"/>
-          </div>
-          <div class="mood-display" id="mood-display">
-            <span class="mood-emoji" id="mood-emoji"></span>
-            <span class="mood-name" id="mood-name">Neutral</span>
           </div>
         </div>
       </div>
@@ -1843,12 +1845,10 @@ function buildMoodGrid() {
 }
 
 function updateSliderLabels() {
-  const isHe = state.lang === 'he';
-  const labels = document.querySelectorAll('.mood-slider-labels span');
-  if (labels.length === 2) {
-    labels[0].innerHTML = `${moodFaceSVG(0, MOODS[0].color, 14)} ${isHe ? 'סובל' : 'Suffering'}`;
-    labels[1].innerHTML = `${isHe ? 'אושר מלא' : 'Blissful'} ${moodFaceSVG(14, MOODS[14].color, 14)}`;
-  }
+  const min = document.getElementById('mood-label-min');
+  const max = document.getElementById('mood-label-max');
+  if (min) min.innerHTML = moodFaceSVG(0, MOODS[0].color, 20);
+  if (max) max.innerHTML = moodFaceSVG(14, MOODS[14].color, 20);
 }
 
 function onSliderMove(val) {
