@@ -2509,6 +2509,25 @@ function getCBTSystem() {
 let panicHistory = [];
 let panicPhase = 'initial'; // 'initial' | 'in-progress' | 'calmer'
 
+function getPanicOpening() {
+  const name = state.name;
+  const g = state.gender;
+  if (state.lang === 'he') {
+    const greeting = name ? `${name}, ` : '';
+    const partner = g === 'n' ? 'איתכם' : 'איתך';
+    const safe = g === 'f' ? 'את בטוחה' : g === 'n' ? 'אתם בטוחים' : 'אתה בטוח';
+    const breath = g === 'f'
+      ? 'קחי איתי נשימה אחת איטית — שאפי… ונשפי'
+      : g === 'n'
+      ? 'קחו איתי נשימה אחת איטית — שאפו… ונשפו'
+      : 'קח איתי נשימה אחת איטית — שאף… ונשוף';
+    const ask = g === 'n' ? 'מה קורה לכם עכשיו?' : 'מה קורה לך עכשיו?';
+    return `${greeting}אני ממש כאן ${partner}. 💙\n\n${safe} ברגע הזה, גם אם זה לא מרגיש ככה. ${breath}.\n\n${ask}`;
+  }
+  const greeting = name ? `${name}, ` : '';
+  return `${greeting}I'm right here with you. 💙\n\nYou're safe in this moment, even if it doesn't feel that way. Take one slow breath with me — breathe in… and out.\n\nWhat's happening for you right now?`;
+}
+
 function openPanic() {
   panicHistory = [];
   panicPhase = 'initial';
@@ -2517,16 +2536,17 @@ function openPanic() {
   document.getElementById('panic-messages').innerHTML = '';
   document.getElementById('quick-replies').innerHTML = '';
 
-  // Apply current language
-  document.getElementById('panic-title').textContent = t('panicTitle');
+  const titleBase = t('panicTitle');
+  document.getElementById('panic-title').textContent = state.name
+    ? `${state.name}, ${titleBase[0].toLowerCase()}${titleBase.slice(1)}`
+    : titleBase;
   document.getElementById('panic-sub').textContent = t('panicSub');
   document.getElementById('lbl-panic-close').textContent = t('panicClose');
   document.getElementById('panic-input').placeholder = t('panicInputPlaceholder');
 
   lucide.createIcons();
 
-  // Instant hardcoded opening — no AI latency at a stressful moment
-  const opening = t('panicOpening');
+  const opening = getPanicOpening();
   appendBubble('ai', opening);
   panicHistory.push({ role: 'assistant', content: opening });
   const qr1 = T[state.lang].panicQR1;
