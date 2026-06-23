@@ -17,6 +17,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&family=Heebo:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <style>
 :root {
@@ -47,7 +48,7 @@ body {
   background: var(--indigo);
   color: var(--text);
   font-family: var(--font-en);
-  min-height: 100vh; /* iOS fallback */
+  min-height: 100vh;
   min-height: 100dvh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -57,11 +58,11 @@ body {
 
 body.rtl { font-family: var(--font-he); direction: rtl; }
 
-/* ── SETUP SCREEN ── */
-#setup-screen {
+/* ── AUTH SCREEN ── */
+#auth-screen {
   min-height: 100vh;
   min-height: 100dvh;
-  display: flex;
+  display: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -71,6 +72,87 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
   gap: 2rem;
   text-align: center;
 }
+#auth-screen.visible { display: flex; }
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #3c4043;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.8rem 1.5rem;
+  width: 100%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.15);
+  transition: box-shadow 0.2s, opacity 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: manipulation;
+}
+.google-btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+.google-btn:active { opacity: 0.85; }
+.google-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  width: 100%;
+}
+.auth-divider::before, .auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.guest-link {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.75rem 1.5rem;
+  width: 100%;
+  transition: color 0.2s, border-color 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: manipulation;
+}
+.guest-link:hover { color: var(--text); border-color: var(--lavender-dim); }
+
+.auth-notice {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  max-width: 280px;
+}
+
+/* ── SETUP SCREEN ── */
+#setup-screen {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  padding-top: calc(2rem + env(safe-area-inset-top));
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+  gap: 2rem;
+  text-align: center;
+}
+#setup-screen.visible { display: flex; }
 
 .setup-orb {
   width: 90px; height: 90px;
@@ -108,7 +190,7 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
   border-radius: var(--radius-sm);
   color: var(--text);
   font-family: inherit;
-  font-size: 1rem; /* ≥16px prevents iOS auto-zoom */
+  font-size: 1rem;
   padding: 0.75rem 1rem;
   width: 100%;
   outline: none;
@@ -204,6 +286,104 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
 }
 .icon-btn:hover { background: var(--card-hover); color: var(--text); }
 .icon-btn:active { opacity: 0.7; }
+
+/* ── USER AVATAR / MENU ── */
+.user-avatar-wrap {
+  position: relative;
+  display: none;
+}
+.user-avatar-wrap.visible { display: block; }
+
+.user-avatar-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  transition: border-color 0.2s;
+  background: var(--indigo-light);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.user-avatar-btn:hover { border-color: var(--lavender); }
+.user-avatar-btn img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.user-initials {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--lavender);
+  letter-spacing: 0.02em;
+}
+
+.user-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--indigo-mid);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  z-index: 200;
+  display: none;
+  animation: slideDown 0.15s ease;
+}
+.user-menu.open { display: block; }
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.user-menu-info {
+  padding-bottom: 0.6rem;
+  margin-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+.user-menu-name { font-size: 0.85rem; font-weight: 500; color: var(--text); }
+.user-menu-email { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.2rem; word-break: break-all; }
+.user-menu-btn {
+  width: 100%;
+  text-align: left;
+  padding: 0.4rem 0;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.2s;
+  -webkit-appearance: none;
+}
+.user-menu-btn:hover { color: var(--blush); }
+.rtl .user-menu-btn { text-align: right; }
+
+/* ── SYNC STATUS ── */
+.sync-badge {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.sync-badge.visible { opacity: 1; }
+.sync-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--sage);
+  flex-shrink: 0;
+}
+.sync-dot.syncing { background: var(--lavender); animation: pulse 1s ease-in-out infinite; }
+.sync-dot.error { background: var(--blush); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
 .app-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 1.25rem; }
 
@@ -303,7 +483,6 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
   margin-bottom: 0.75rem;
 }
 
-/* Gradient track background */
 .mood-slider-track::before {
   content: '';
   position: absolute;
@@ -316,9 +495,6 @@ body.rtl { font-family: var(--font-he); direction: rtl; }
     #7ab8a0, #8fb88a, #b8b46a, #d4a0c8, #e8c4d0
   );
 }
-/* In RTL (Hebrew) the native range input flips so 0 sits on the right.
-   Flip the gradient direction too so the red "Suffering / סובל" end
-   stays under the thumb's actual min position instead of the left side. */
 .rtl .mood-slider-track::before {
   background: linear-gradient(to left,
     #6b3a4a, #7a4a5e, #7a6070, #6a7a9e, #6a8aae,
@@ -400,7 +576,7 @@ input[type=range].mood-range:focus { outline: none; }
   border: none;
   color: var(--text);
   font-family: inherit;
-  font-size: 1rem; /* ≥16px prevents iOS auto-zoom */
+  font-size: 1rem;
   line-height: 1.7;
   min-height: 160px;
   outline: none;
@@ -653,18 +829,13 @@ input[type=range].mood-range:focus { outline: none; }
   .mood-orb, .setup-orb { animation: none; }
 }
 
-/* ── WIDE VIEWPORTS ──
-   This is a mobile-first layout; on phones/narrow windows it already
-   fills the screen edge-to-edge as designed. On wider windows (desktop,
-   tablet landscape) frame it as a centered panel instead of stretching
-   everything across the full width. */
 @media (min-width: 720px) {
   body {
     background:
       radial-gradient(circle at 50% 0%, rgba(184,169,212,0.08), transparent 60%),
       #12101f;
   }
-  #setup-screen, #app {
+  #auth-screen, #setup-screen, #app {
     max-width: 480px;
     margin: 0 auto;
     box-shadow: 0 0 0 1px var(--border), 0 30px 80px rgba(0,0,0,0.45);
@@ -676,10 +847,34 @@ input[type=range].mood-range:focus { outline: none; }
     right: auto;
     transform: translateX(-50%);
   }
+  .user-menu { right: 0; }
 }
 </style>
 </head>
 <body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="setup-orb"></div>
+  <div>
+    <div class="setup-title">Wellness <span>Journal</span><br/>יומן <span>רווחה</span></div>
+  </div>
+  <p class="setup-sub">Your private space to reflect, feel, and grow — powered by AI.</p>
+  <div class="setup-card">
+    <button class="google-btn" id="google-signin-btn" onclick="startGoogleSignIn()">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+        <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/>
+        <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/>
+        <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/>
+        <path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/>
+      </svg>
+      Sign in with Google
+    </button>
+    <div class="auth-divider">or</div>
+    <button class="guest-link" onclick="continueAsGuest()">Continue as guest</button>
+    <p class="auth-notice" id="auth-notice">Your journal is saved privately to your Google Drive — no one else can access it.</p>
+  </div>
+</div>
 
 <!-- SETUP SCREEN -->
 <div id="setup-screen">
@@ -705,6 +900,25 @@ input[type=range].mood-range:focus { outline: none; }
   <header class="app-header">
     <div class="app-logo" id="app-logo">Wellness <span>Journal</span></div>
     <div class="header-actions">
+      <div class="sync-badge" id="sync-badge">
+        <div class="sync-dot" id="sync-dot"></div>
+        <span id="sync-label"></span>
+      </div>
+      <div class="user-avatar-wrap" id="user-avatar-wrap">
+        <div class="user-avatar-btn" id="user-avatar-btn" onclick="toggleUserMenu()" role="button" aria-label="Account menu">
+          <span class="user-initials" id="user-initials"></span>
+        </div>
+        <div class="user-menu" id="user-menu">
+          <div class="user-menu-info">
+            <div class="user-menu-name" id="user-menu-name"></div>
+            <div class="user-menu-email" id="user-menu-email"></div>
+          </div>
+          <button class="user-menu-btn" id="btn-signout" onclick="signOut()">
+            <i data-lucide="log-out" width="14" height="14"></i>
+            <span id="lbl-signout">Sign out</span>
+          </button>
+        </div>
+      </div>
       <button class="icon-btn" title="Settings" onclick="toggleSettings()"><i data-lucide="settings" width="18" height="18"></i></button>
     </div>
   </header>
@@ -812,41 +1026,22 @@ input[type=range].mood-range:focus { outline: none; }
 
 <div class="toast" id="toast"></div>
 
-<!-- Firebase -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, serverTimestamp }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
-// ── CONFIG ── Replace with your Firebase project details ──
-const firebaseConfig = {
-  apiKey: "AIzaSyBoVRxfOWTU-gmE3jTSFWGJEBsCtpCID6Y",
-  authDomain: "wellness-journal-ab6b0.firebaseapp.com",
-  databaseURL: "https://wellness-journal-ab6b0-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "wellness-journal-ab6b0",
-  storageBucket: "wellness-journal-ab6b0.firebasestorage.app",
-  messagingSenderId: "529811620033",
-  appId: "1:529811620033:web:f78f0936fb6646eb0a9440",
-  measurementId: "G-J8T2NQ7C1M"
-};
-// ────────────────────────────────────────────────────────
-
-let db;
-try {
-  const app = initializeApp(firebaseConfig);
-  db = getDatabase(app);
-  window._fbDb = db;
-  window._fbRef = ref;
-  window._fbPush = push;
-  window._fbOnValue = onValue;
-  window._fbTimestamp = serverTimestamp;
-} catch(e) {
-  console.warn("Firebase not configured — running in local mode");
-}
-</script>
-
 <script>
-// ── STATE ──
+// ── GOOGLE DRIVE CONFIG ──
+// 1. Go to console.cloud.google.com → New project
+// 2. Enable "Google Drive API"
+// 3. OAuth consent screen → External → add scope: drive.appdata
+// 4. Credentials → Create OAuth 2.0 Client ID (Web application)
+// 5. Add Authorized JavaScript origins: https://gefenrose.github.io
+// 6. Paste the Client ID below
+const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
+const DRIVE_FILE_NAME = 'wellness-journal.json';
+const DRIVE_API = 'https://www.googleapis.com/drive/v3/files';
+const UPLOAD_API = 'https://www.googleapis.com/upload/drive/v3/files';
+
+// ── MOODS ──
 const MOODS = [
   { label:"Suffering",   labelHe:"סובל",       color:"#6b3a4a", glow:"rgba(107,58,74,0.5)" },
   { label:"Miserable",   labelHe:"אומלל",      color:"#7a4a5e", glow:"rgba(122,74,94,0.45)" },
@@ -865,38 +1060,26 @@ const MOODS = [
   { label:"Blissful",    labelHe:"אושר מלא",   color:"#e8c4d0", glow:"rgba(232,196,208,0.5)" },
 ];
 
-// ── MOOD FACE ICONS ──
-// There's no off-the-shelf icon set with 15 graduated facial expressions, so
-// these are generated: a circle face whose eyebrows, eyes, and mouth curve
-// shift smoothly from a pained frown (index 0) through neutral (index 7) to
-// a closed-eyes smile (index 14), styled to match the Lucide icons used
-// elsewhere (thin stroke, rounded caps, currentColor-style coloring).
 function moodFaceSVG(index, color, size = 24) {
-  const valence = (index / 14 - 0.5) * 2; // -1 (Suffering) .. 1 (Blissful)
+  const valence = (index / 14 - 0.5) * 2;
   const cx = 12, cy = 12, r = 9;
-
   const mouthY = 15.5;
   const mouthHalfW = 3.6 + Math.abs(valence) * 1.2;
   const ctrlY = mouthY + valence * 6.4;
   const mouthPath = `M${cx - mouthHalfW} ${mouthY} Q${cx} ${ctrlY} ${cx + mouthHalfW} ${mouthY}`;
-
   const browDroop = Math.max(0, -valence) * 2.2;
   const browY = 8.3, browInset = 2.6, browSpan = 2.2;
   const leftBrow  = `M${cx - browInset - browSpan} ${browY + browDroop} L${cx - browInset} ${browY}`;
   const rightBrow = `M${cx + browInset} ${browY} L${cx + browInset + browSpan} ${browY + browDroop}`;
-
   const eyeY = 10.2, eyeOffsetX = 3.6;
   let eyesSVG;
   if (index === 0) {
-    // squeezed shut — pained
     eyesSVG = `<path d="M${cx-eyeOffsetX-1.1} ${eyeY} q1.1 1 2.2 0 M${cx+eyeOffsetX-1.1} ${eyeY} q1.1 1 2.2 0" stroke="${color}" stroke-width="1.4" stroke-linecap="round" fill="none"/>`;
   } else if (index >= 12) {
-    // closed, upward crescents — joyful
     eyesSVG = `<path d="M${cx-eyeOffsetX-1.3} ${eyeY+0.5} q1.3 -1.5 2.6 0 M${cx+eyeOffsetX-1.3} ${eyeY+0.5} q1.3 -1.5 2.6 0" stroke="${color}" stroke-width="1.4" stroke-linecap="round" fill="none"/>`;
   } else {
     eyesSVG = `<circle cx="${cx-eyeOffsetX}" cy="${eyeY}" r="0.9" fill="${color}"/><circle cx="${cx+eyeOffsetX}" cy="${eyeY}" r="0.9" fill="${color}"/>`;
   }
-
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block">
 <circle cx="${cx}" cy="${cy}" r="${r}" stroke="${color}" stroke-width="1.6"/>
 <path d="${leftBrow}" stroke="${color}" stroke-width="1.5" stroke-linecap="round"/>
@@ -906,11 +1089,19 @@ ${eyesSVG}
 </svg>`;
 }
 
+// ── STATE ──
 let state = {
   lang: localStorage.getItem('wj_lang') || 'en',
   selectedMood: null,
-  entries: JSON.parse(localStorage.getItem('wj_entries') || '[]'),
+  entries: [],
+  user: null,         // { name, email, picture, id }
+  accessToken: null,  // Google OAuth access token
+  driveFileId: null,  // Drive file ID once created/found
+  guestMode: false,
 };
+
+let tokenClient = null;
+let syncTimer = null;
 
 // ── TRANSLATIONS ──
 const T = {
@@ -928,10 +1119,14 @@ const T = {
     reflectTitle: 'Reflection',
     lang: 'Language / שפה',
     saveSettings: 'Save',
+    signOut: 'Sign out',
     toastSettingsSaved: '✓ Settings saved',
     toastSaved: '✓ Entry saved',
     toastNeedText: 'Write something first',
     toastError: 'Something went wrong. Try again.',
+    toastSignedOut: 'Signed out',
+    toastDriveSaved: '✓ Saved to Drive',
+    toastDriveError: 'Drive sync failed — saved locally',
     emptyHistory: 'No entries yet.\nStart writing to see your history here.',
     insightMoods: 'Mood frequency',
     insightStreak: 'Journaling streak',
@@ -940,6 +1135,8 @@ const T = {
     streakDays: d => `${d} day${d===1?'':'s'} in a row`,
     placeholder: "Write what's on your mind...",
     modalClose: '✕',
+    syncSaving: 'Saving…',
+    syncSaved: 'Saved',
   },
   he: {
     logo: 'יומן <span>רווחה</span>',
@@ -955,10 +1152,14 @@ const T = {
     reflectTitle: 'השתקפות',
     lang: 'שפה / Language',
     saveSettings: 'שמור',
+    signOut: 'התנתקות',
     toastSettingsSaved: '✓ ההגדרות נשמרו',
     toastSaved: '✓ רשומה נשמרה',
     toastNeedText: 'כתוב משהו תחילה',
     toastError: 'משהו השתבש. נסה שוב.',
+    toastSignedOut: 'התנתקת',
+    toastDriveSaved: '✓ נשמר ל-Drive',
+    toastDriveError: 'סנכרון Drive נכשל — נשמר מקומית',
     emptyHistory: 'אין רשומות עדיין.\nהתחל לכתוב כדי לראות את ההיסטוריה שלך כאן.',
     insightMoods: 'תדירות מצבי רוח',
     insightStreak: 'רצף יומן',
@@ -967,10 +1168,285 @@ const T = {
     streakDays: d => `${d} יום${d===1?'':'ים'} ברצף`,
     placeholder: 'כתוב מה עובר עליך...',
     modalClose: '✕',
+    syncSaving: 'שומר…',
+    syncSaved: 'נשמר',
   }
 };
 
 function t(key) { return T[state.lang][key] || key; }
+
+// ── GOOGLE AUTH ──
+function initGoogleAuth() {
+  if (!window.google?.accounts?.oauth2) return;
+  if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com') {
+    // No client ID configured — hide Google sign-in button
+    const btn = document.getElementById('google-signin-btn');
+    if (btn) btn.style.display = 'none';
+    const notice = document.getElementById('auth-notice');
+    if (notice) notice.textContent = 'Guest mode: your journal is saved on this device only.';
+    return;
+  }
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: `${DRIVE_SCOPE} openid profile email`,
+    callback: handleDriveToken,
+    error_callback: (err) => {
+      console.warn('Auth error:', err);
+      showToast('Sign-in failed. Try again.');
+    }
+  });
+
+  // If we have a saved user, attempt silent token refresh
+  const savedUser = localStorage.getItem('wj_user');
+  if (savedUser && !state.guestMode) {
+    tokenClient.requestAccessToken({ prompt: '' });
+  }
+}
+
+// Called by the GIS library once it loads
+window.onGoogleLibraryLoad = function() {
+  initGoogleAuth();
+};
+
+function startGoogleSignIn() {
+  if (!tokenClient) {
+    showToast('Google Sign-In not available');
+    return;
+  }
+  tokenClient.requestAccessToken({ prompt: 'select_account' });
+}
+
+async function handleDriveToken(response) {
+  if (response.error) {
+    console.warn('Token error:', response.error);
+    showToast('Sign-in failed. Try again.');
+    return;
+  }
+
+  state.accessToken = response.access_token;
+
+  // Fetch user info
+  try {
+    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { 'Authorization': `Bearer ${state.accessToken}` }
+    });
+    const info = await res.json();
+    state.user = { name: info.name, email: info.email, picture: info.picture, id: info.sub };
+    localStorage.setItem('wj_user', JSON.stringify(state.user));
+  } catch(e) {
+    console.warn('Could not fetch user info:', e);
+  }
+
+  // Load data from Drive
+  await loadFromDrive();
+
+  // Navigate
+  if (localStorage.getItem('wj_setup_done')) {
+    launchApp();
+  } else {
+    showSetupScreen();
+  }
+}
+
+function continueAsGuest() {
+  state.guestMode = true;
+  localStorage.setItem('wj_guest', '1');
+  state.entries = JSON.parse(localStorage.getItem('wj_entries') || '[]');
+  if (localStorage.getItem('wj_setup_done')) {
+    launchApp();
+  } else {
+    showSetupScreen();
+  }
+}
+
+function signOut() {
+  closeUserMenu();
+
+  // Revoke token if available
+  if (state.accessToken && window.google?.accounts?.oauth2) {
+    google.accounts.oauth2.revoke(state.accessToken, () => {});
+  }
+  if (window.google?.accounts?.id) {
+    google.accounts.id.disableAutoSelect();
+  }
+
+  // Clear state
+  state.user = null;
+  state.accessToken = null;
+  state.driveFileId = null;
+  state.entries = [];
+  state.guestMode = false;
+
+  // Clear storage
+  ['wj_user','wj_entries','wj_setup_done','wj_guest','wj_lang'].forEach(k => localStorage.removeItem(k));
+
+  // Return to auth screen
+  document.getElementById('app').classList.remove('visible');
+  showAuthScreen();
+}
+
+// ── GOOGLE DRIVE ──
+async function loadFromDrive() {
+  if (!state.accessToken) return;
+  try {
+    const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}'`);
+    const res = await fetch(
+      `${DRIVE_API}?spaces=appDataFolder&q=${q}&fields=files(id,name)`,
+      { headers: { 'Authorization': `Bearer ${state.accessToken}` } }
+    );
+    const { files } = await res.json();
+
+    if (files && files.length > 0) {
+      state.driveFileId = files[0].id;
+      const fileRes = await fetch(
+        `${DRIVE_API}/${state.driveFileId}?alt=media`,
+        { headers: { 'Authorization': `Bearer ${state.accessToken}` } }
+      );
+      const data = await fileRes.json();
+      if (Array.isArray(data.entries)) {
+        state.entries = data.entries;
+        localStorage.setItem('wj_entries', JSON.stringify(state.entries));
+      }
+      if (data.lang) {
+        state.lang = data.lang;
+        localStorage.setItem('wj_lang', data.lang);
+      }
+      // Mark as returning user so we skip setup
+      localStorage.setItem('wj_setup_done', '1');
+    }
+  } catch(e) {
+    console.warn('Drive load failed, using local cache:', e);
+    state.entries = JSON.parse(localStorage.getItem('wj_entries') || '[]');
+  }
+}
+
+async function saveToDrive() {
+  if (!state.accessToken || state.guestMode) return;
+
+  setSyncStatus('syncing');
+  const data = {
+    version: 1,
+    lang: state.lang,
+    entries: state.entries,
+    savedAt: new Date().toISOString()
+  };
+
+  try {
+    if (state.driveFileId) {
+      await fetch(`${UPLOAD_API}/${state.driveFileId}?uploadType=media`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${state.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+    } else {
+      const boundary = 'wj_boundary_001';
+      const meta = JSON.stringify({ name: DRIVE_FILE_NAME, parents: ['appDataFolder'], mimeType: 'application/json' });
+      const body = [
+        `--${boundary}`, 'Content-Type: application/json; charset=UTF-8', '', meta,
+        `--${boundary}`, 'Content-Type: application/json', '', JSON.stringify(data),
+        `--${boundary}--`
+      ].join('\r\n');
+      const res = await fetch(`${UPLOAD_API}?uploadType=multipart`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${state.accessToken}`,
+          'Content-Type': `multipart/related; boundary=${boundary}`
+        },
+        body
+      });
+      const created = await res.json();
+      state.driveFileId = created.id;
+    }
+    setSyncStatus('saved');
+  } catch(e) {
+    console.warn('Drive save failed:', e);
+    setSyncStatus('error');
+  }
+}
+
+function setSyncStatus(status) {
+  const badge = document.getElementById('sync-badge');
+  const dot = document.getElementById('sync-dot');
+  const label = document.getElementById('sync-label');
+  if (!badge) return;
+
+  clearTimeout(syncTimer);
+  if (status === 'syncing') {
+    dot.className = 'sync-dot syncing';
+    label.textContent = t('syncSaving');
+    badge.classList.add('visible');
+  } else if (status === 'saved') {
+    dot.className = 'sync-dot';
+    label.textContent = t('syncSaved');
+    badge.classList.add('visible');
+    syncTimer = setTimeout(() => badge.classList.remove('visible'), 2000);
+  } else if (status === 'error') {
+    dot.className = 'sync-dot error';
+    label.textContent = '!';
+    badge.classList.add('visible');
+    syncTimer = setTimeout(() => badge.classList.remove('visible'), 4000);
+  }
+}
+
+// ── SCREEN NAVIGATION ──
+function showAuthScreen() {
+  document.getElementById('auth-screen').classList.add('visible');
+  document.getElementById('setup-screen').classList.remove('visible');
+  document.getElementById('app').classList.remove('visible');
+  setLang(state.lang);
+}
+
+function showSetupScreen() {
+  document.getElementById('auth-screen').classList.remove('visible');
+  document.getElementById('setup-screen').classList.add('visible');
+  document.getElementById('app').classList.remove('visible');
+  setLang(state.lang);
+}
+
+// ── USER AVATAR UI ──
+function updateUserUI() {
+  const wrap = document.getElementById('user-avatar-wrap');
+  const btn = document.getElementById('user-avatar-btn');
+  const nameEl = document.getElementById('user-menu-name');
+  const emailEl = document.getElementById('user-menu-email');
+
+  if (state.user) {
+    wrap.classList.add('visible');
+    if (state.user.picture) {
+      btn.innerHTML = `<img src="${state.user.picture}" alt="${state.user.name}" referrerpolicy="no-referrer">`;
+    } else {
+      const initials = state.user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      btn.innerHTML = `<span class="user-initials">${initials}</span>`;
+    }
+    nameEl.textContent = state.user.name;
+    emailEl.textContent = state.user.email;
+  } else {
+    wrap.classList.remove('visible');
+  }
+}
+
+function toggleUserMenu() {
+  const menu = document.getElementById('user-menu');
+  if (menu.classList.contains('open')) {
+    closeUserMenu();
+  } else {
+    menu.classList.add('open');
+    setTimeout(() => document.addEventListener('click', handleOutsideClick), 0);
+  }
+}
+
+function closeUserMenu() {
+  document.getElementById('user-menu').classList.remove('open');
+  document.removeEventListener('click', handleOutsideClick);
+}
+
+function handleOutsideClick(e) {
+  const wrap = document.getElementById('user-avatar-wrap');
+  if (wrap && !wrap.contains(e.target)) closeUserMenu();
+}
 
 // ── SETUP ──
 function setLang(lang) {
@@ -985,17 +1461,20 @@ function completeSetup() {
   localStorage.setItem('wj_lang', state.lang);
   localStorage.setItem('wj_setup_done', '1');
   launchApp();
+  // Persist lang to Drive for this user
+  if (!state.guestMode) saveToDrive();
 }
 
 function launchApp() {
-  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('auth-screen').classList.remove('visible');
+  document.getElementById('setup-screen').classList.remove('visible');
   const app = document.getElementById('app');
   app.classList.add('visible');
   applyLang();
   buildMoodGrid();
   renderHistory();
   renderInsights();
-  loadFromFirebase();
+  updateUserUI();
   lucide.createIcons();
 }
 
@@ -1020,14 +1499,13 @@ function applyLang() {
   document.getElementById('tabl-history').textContent = t('tabHistory');
   document.getElementById('tabl-insights').textContent = t('tabInsights');
   document.getElementById('entry-text').placeholder = t('placeholder');
+  document.getElementById('lbl-signout').textContent = t('signOut');
   updateSliderLabels && updateSliderLabels();
 }
 
 // ── MOOD SLIDER ──
 function buildMoodGrid() {
-  // Update labels for current language
   updateSliderLabels();
-  // Init at neutral (index 7)
   onSliderMove(7);
 }
 
@@ -1043,23 +1521,18 @@ function updateSliderLabels() {
 function onSliderMove(val) {
   const i = parseInt(val);
   const m = MOODS[i];
-  // Update display pill
   document.getElementById('mood-emoji').innerHTML = moodFaceSVG(i, m.color, 22);
   const nameEl = document.getElementById('mood-name');
   nameEl.textContent = state.lang === 'he' ? m.labelHe : m.label;
   nameEl.style.color = m.color;
-  // Update display border
   const display = document.getElementById('mood-display');
   display.style.borderColor = m.color + '88';
-  // Update orb
   const orb = document.getElementById('mood-orb');
   orb.style.background = `radial-gradient(circle at 35% 35%, ${m.color}, #2f2f5a)`;
   orb.style.boxShadow = `0 0 40px ${m.glow}`;
-  // Update thumb color via CSS var on the slider
   const slider = document.getElementById('mood-slider');
   slider.style.setProperty('--thumb-color', m.color);
   slider.style.setProperty('--thumb-glow', m.glow);
-  // Commit immediately (every move counts)
   state.selectedMood = i;
 }
 
@@ -1068,16 +1541,11 @@ function onSliderCommit(val) {
 }
 
 function selectMood(i) {
-  // kept for compatibility — set slider position
   document.getElementById('mood-slider').value = i;
   onSliderMove(i);
 }
 
 // ── AI PROXY ──
-// Calls the Cloudflare Worker (worker/worker.js) instead of an AI provider
-// directly, so no personal API key is needed on this device — the worker
-// holds the key server-side. After deploying the worker (see README),
-// paste the resulting *.workers.dev URL below.
 const WORKER_URL = 'https://wellness-journal-api.gefenrose.workers.dev';
 
 async function callAI(prompt) {
@@ -1096,15 +1564,12 @@ async function getPrompt() {
   const mood = state.selectedMood !== null ? MOODS[state.selectedMood] : null;
   const moodStr = mood ? (state.lang==='he' ? mood.labelHe : mood.label) : 'neutral';
   const lang = state.lang === 'he' ? 'Hebrew' : 'English';
-
   const panel = document.getElementById('prompt-panel');
   const body = document.getElementById('prompt-body');
   panel.classList.add('visible');
   body.innerHTML = `<div class="ai-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
-
   try {
-    const prompt = `You are a compassionate wellness journal guide. Generate ONE thoughtful, emotionally intelligent journal prompt for someone feeling ${moodStr}. The prompt should help them explore their feelings with curiosity and self-compassion. Write in ${lang}. Be warm, specific, and avoid clichés. 2-3 sentences max.`;
-    const text = await callAI(prompt);
+    const text = await callAI(`You are a compassionate wellness journal guide. Generate ONE thoughtful, emotionally intelligent journal prompt for someone feeling ${moodStr}. The prompt should help them explore their feelings with curiosity and self-compassion. Write in ${lang}. Be warm, specific, and avoid clichés. 2-3 sentences max.`);
     body.innerHTML = text;
   } catch(e) {
     body.innerHTML = handleError(e);
@@ -1114,19 +1579,15 @@ async function getPrompt() {
 async function reflectEntry() {
   const text = document.getElementById('entry-text').value.trim();
   if (!text) { showToast(t('toastNeedText')); return; }
-
   const mood = state.selectedMood !== null ? MOODS[state.selectedMood] : null;
   const moodStr = mood ? (state.lang==='he' ? mood.labelHe : mood.label) : 'unspecified';
   const lang = state.lang === 'he' ? 'Hebrew' : 'English';
-
   const panel = document.getElementById('reflect-panel');
   const body = document.getElementById('reflect-body');
   panel.classList.add('visible');
   body.innerHTML = `<div class="ai-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
-
   try {
-    const prompt = `You are a warm, insightful wellness coach. Read this journal entry written by someone feeling ${moodStr}:\n\n"${text}"\n\nProvide a brief, compassionate reflection (3-4 sentences) in ${lang}. Notice patterns, validate emotions, and offer one gentle insight. Be human, not clinical.`;
-    const result = await callAI(prompt);
+    const result = await callAI(`You are a warm, insightful wellness coach. Read this journal entry written by someone feeling ${moodStr}:\n\n"${text}"\n\nProvide a brief, compassionate reflection (3-4 sentences) in ${lang}. Notice patterns, validate emotions, and offer one gentle insight. Be human, not clinical.`);
     body.innerHTML = result;
   } catch(e) {
     body.innerHTML = handleError(e);
@@ -1154,14 +1615,10 @@ function saveEntry() {
   state.entries.unshift(entry);
   localStorage.setItem('wj_entries', JSON.stringify(state.entries));
 
-  // Firebase
-  if (window._fbDb) {
-    try {
-      window._fbPush(window._fbRef(window._fbDb, 'entries'), {...entry, serverTime: window._fbTimestamp()});
-    } catch(e) { console.warn('Firebase write failed', e); }
-  }
+  // Sync to Drive asynchronously
+  saveToDrive();
 
-  // Reset
+  // Reset write area
   document.getElementById('entry-text').value = '';
   state.selectedMood = null;
   document.querySelectorAll('.mood-chip').forEach(c => c.classList.remove('selected'));
@@ -1229,8 +1686,6 @@ function renderInsights() {
     lucide.createIcons();
     return;
   }
-
-  // Mood frequency
   const moodCounts = {};
   state.entries.forEach(e => {
     if (e.mood !== null && e.mood !== undefined) moodCounts[e.mood] = (moodCounts[e.mood]||0)+1;
@@ -1246,10 +1701,8 @@ function renderInsights() {
     </div>`;
   }).filter(Boolean).join('');
 
-  // Streak
   const days = [...new Set(state.entries.map(e => new Date(e.timestamp).toDateString()))];
   let streak = 0;
-  const today = new Date().toDateString();
   let check = new Date();
   while(days.includes(check.toDateString())) {
     streak++;
@@ -1278,13 +1731,11 @@ function renderInsights() {
 async function getWeeklyReflection() {
   const el = document.getElementById('insight-ai-text');
   el.innerHTML = `<div class="ai-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
-
   const recent = state.entries.slice(0, 7);
   const summary = recent.map(e => {
     const m = e.mood !== null && e.mood !== undefined ? MOODS[e.mood].label : 'unknown';
     return `- Mood: ${m}. "${e.text.substring(0,120)}"`;
   }).join('\n');
-
   const lang = state.lang === 'he' ? 'Hebrew' : 'English';
   try {
     const result = await callAI(`You are a compassionate wellness coach. Here are someone's recent journal entries:\n${summary}\n\nWrite a warm, insightful weekly reflection in ${lang} (4-5 sentences). Notice emotional patterns, celebrate resilience, and offer gentle encouragement. Avoid clichés.`);
@@ -1320,34 +1771,18 @@ function saveSettings() {
   buildMoodGrid();
   renderHistory();
   showToast(t('toastSettingsSaved'));
+  // Persist updated lang to Drive
+  if (!state.guestMode) saveToDrive();
 }
 
 function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
 }
 
-function loadFromFirebase() {
-  if (!window._fbDb) return;
-  try {
-    window._fbOnValue(window._fbRef(window._fbDb, 'entries'), snap => {
-      const data = snap.val();
-      if (!data) return;
-      const remote = Object.values(data).sort((a,b) => b.timestamp - a.timestamp);
-      // Merge: add remote entries not in local
-      const localIds = new Set(state.entries.map(e => e.id));
-      remote.forEach(e => { if (!localIds.has(e.id)) state.entries.push(e); });
-      state.entries.sort((a,b) => b.timestamp - a.timestamp);
-      localStorage.setItem('wj_entries', JSON.stringify(state.entries));
-      renderHistory();
-      renderInsights();
-    });
-  } catch(e) { console.warn('Firebase read failed', e); }
-}
-
-// ── INIT ──
+// ── GLOBAL EXPORTS ──
 window.onSliderMove = onSliderMove;
 window.onSliderCommit = onSliderCommit;
 window.setLang = setLang;
@@ -1362,15 +1797,33 @@ window.closeEntryModal = closeEntryModal;
 window.switchTab = switchTab;
 window.toggleSettings = toggleSettings;
 window.saveSettings = saveSettings;
+window.startGoogleSignIn = startGoogleSignIn;
+window.continueAsGuest = continueAsGuest;
+window.signOut = signOut;
+window.toggleUserMenu = toggleUserMenu;
 window.getWeeklyReflection = getWeeklyReflection;
 
-// Check if already set up
-if (localStorage.getItem('wj_setup_done')) {
-  launchApp();
-} else {
-  // Pre-select lang on setup screen
-  setLang(state.lang);
-}
+// ── INIT ──
+(function init() {
+  const savedUser = localStorage.getItem('wj_user');
+  const isGuest = localStorage.getItem('wj_guest');
+  const setupDone = localStorage.getItem('wj_setup_done');
+
+  if (isGuest) {
+    state.guestMode = true;
+    state.entries = JSON.parse(localStorage.getItem('wj_entries') || '[]');
+    state.lang = localStorage.getItem('wj_lang') || 'en';
+    if (setupDone) { launchApp(); } else { showSetupScreen(); }
+  } else if (savedUser) {
+    state.user = JSON.parse(savedUser);
+    state.entries = JSON.parse(localStorage.getItem('wj_entries') || '[]');
+    state.lang = localStorage.getItem('wj_lang') || 'en';
+    // Show app with cached data immediately; Drive refresh happens via onGoogleLibraryLoad
+    if (setupDone) { launchApp(); } else { showSetupScreen(); }
+  } else {
+    showAuthScreen();
+  }
+})();
 </script>
 
 <!-- Service Worker registration -->
